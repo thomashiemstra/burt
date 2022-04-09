@@ -38,12 +38,15 @@ class Slider(object):
         )
 
     def _slider_changed(self, event):
-        target_position = self._map(self._current_value.get())
+        if self._joint_index == 0:
+            target_position = self._map(self._current_value.get())
 
-        p.setJointMotorControl2(bodyUniqueId=self._body_id,
-                                jointIndex=self._joint_index,
-                                controlMode=p.POSITION_CONTROL,
-                                targetPosition=target_position)
+            p.setJointMotorControl2(bodyUniqueId=self._body_id,
+                                    jointIndex=self._joint_index,
+                                    controlMode=p.POSITION_CONTROL,
+                                    targetPosition=target_position)
+        else:
+            pass
 
     def _map(self, x):
         return (x - self._slider_min) * (self._joint_upper_limit - self._joint_lower_limit) / (self._slider_max - self._slider_min) + self._joint_lower_limit
@@ -54,13 +57,29 @@ if __name__ == '__main__':
 
     physics_client = p.connect(p.GUI, options="--width=1920 --height=1080")
 
-    p.setGravity(0, 0, -9.81, physicsClientId=physics_client)
+    # p.setGravity(0, 0, -9.81, physicsClientId=physics_client)
     p.setRealTimeSimulation(1, physicsClientId=physics_client)
     p.resetDebugVisualizerCamera(1, -40, -40, cameraTargetPosition=[-0.2, -0.1, 0.5])
 
-    body_id = p.loadURDF(current_dir + "/urdf/fred_new.urdf", physicsClientId=physics_client)
+    body_id = p.loadURDF(current_dir + "/urdf/burt.urdf", physicsClientId=physics_client)
 
     number_of_joints = p.getNumJoints(body_id)
+
+    joint_name_to_id = {}
+    for i in range(number_of_joints):
+        joint_info = p.getJointInfo(body_id, i)
+        joint_name_to_id[joint_info[1].decode("UTF-8")] = joint_info[0]
+
+        p.setJointMotorControl2(bodyUniqueId=body_id,
+                                jointIndex=i,
+                                controlMode=p.VELOCITY_CONTROL,
+                                force=0)
+
+    constraint = p.createConstraint(body_id, joint_name_to_id["arm_1_to_arm_1_1"], body_id, joint_name_to_id["arm_2_to_arm_2_1"], p.JOINT_POINT2POINT,
+                       [0, 0, 0], [0.0, 0.5, 0.1], [0.0, 0.5, 0.1])
+
+    parentBodyUniqueId, parentJointIndex, childBodyUniqueId, childLinkIndex, constraintType, jointAxis, jointPivotInParent, jointPivotInChild, jointFrameOrientationParent, jointFrameOrientationChild, maxAppliedForce, gearRatio, gearAuxLink, relativePositionTarget, erp = p.getConstraintInfo(constraint)
+
 
 
     root = tk.Tk()
