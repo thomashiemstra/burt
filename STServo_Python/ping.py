@@ -10,21 +10,7 @@
 import sys
 import os
 
-if os.name == 'nt':
-    import msvcrt
-    def getch():
-        return msvcrt.getch().decode()
-else:
-    import sys, tty, termios
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    def getch():
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
+
 
 sys.path.append("..")
 from STservo_sdk import *                   # Uses STServo SDK library
@@ -32,7 +18,7 @@ from STservo_sdk import *                   # Uses STServo SDK library
 # Default setting
 STS_ID                  = 1                 # STServo ID : 1
 BAUDRATE                = 1000000           # STServo default baudrate : 1000000
-DEVICENAME              = 'COM5'    # Check which port is being used on your controller
+DEVICENAME              = '/dev/ttyACM0'    # Check which port is being used on your controller
                                             # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 
 # Initialize PortHandler instance
@@ -49,7 +35,6 @@ if portHandler.openPort():
 else:
     print("Failed to open the port")
     print("Press any key to terminate...")
-    getch()
     quit()
 
 
@@ -59,7 +44,6 @@ if portHandler.setBaudRate(BAUDRATE):
 else:
     print("Failed to change the baudrate")
     print("Press any key to terminate...")
-    getch()
     quit()
 
 # Try to ping the STServo
