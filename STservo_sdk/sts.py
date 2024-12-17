@@ -23,10 +23,11 @@ STS_MODEL_H = 4
 #-------EPROM(读写)--------
 STS_ID = 5
 STS_BAUD_RATE = 6
-STS_MIN_ANGLE_LIMIT_L = 9
-STS_MIN_ANGLE_LIMIT_H = 10
-STS_MAX_ANGLE_LIMIT_L = 11
-STS_MAX_ANGLE_LIMIT_H = 12
+STS_MIN_ANGLE_LIMIT = 9
+STS_MAX_ANGLE_LIMIT = 11
+STS_P_VALUE = 21
+STS_D_VALUE = 22
+STS_I_VALUE = 23
 STS_CW_DEAD = 26
 STS_CCW_DEAD = 27
 STS_OFS_L = 31
@@ -57,13 +58,15 @@ STS_MOVING = 66
 STS_PRESENT_CURRENT_L = 69
 STS_PRESENT_CURRENT_H = 70
 
+
 class sts(protocol_packet_handler):
     def __init__(self, portHandler):
         protocol_packet_handler.__init__(self, portHandler, 0)
         self.groupSyncWrite = GroupSyncWrite(self, STS_ACC, 7)
 
     def WritePosEx(self, sts_id, position, speed, acc):
-        txpacket = [acc, self.sts_lobyte(position), self.sts_hibyte(position), 0, 0, self.sts_lobyte(speed), self.sts_hibyte(speed)]
+        txpacket = [acc, self.sts_lobyte(position), self.sts_hibyte(position), 0, 0, self.sts_lobyte(speed),
+                    self.sts_hibyte(speed)]
         return self.writeTxRx(sts_id, STS_ACC, len(txpacket), txpacket)
 
     def ReadPos(self, sts_id):
@@ -78,18 +81,21 @@ class sts(protocol_packet_handler):
         sts_present_position_speed, sts_comm_result, sts_error = self.read4ByteTxRx(sts_id, STS_PRESENT_POSITION_L)
         sts_present_position = self.sts_loword(sts_present_position_speed)
         sts_present_speed = self.sts_hiword(sts_present_position_speed)
-        return self.sts_tohost(sts_present_position, 15), self.sts_tohost(sts_present_speed, 15), sts_comm_result, sts_error
+        return self.sts_tohost(sts_present_position, 15), self.sts_tohost(sts_present_speed,
+                                                                          15), sts_comm_result, sts_error
 
     def ReadMoving(self, sts_id):
         moving, sts_comm_result, sts_error = self.read1ByteTxRx(sts_id, STS_MOVING)
         return moving, sts_comm_result, sts_error
 
     def SyncWritePosEx(self, sts_id, position, speed, acc):
-        txpacket = [acc, self.sts_lobyte(position), self.sts_hibyte(position), 0, 0, self.sts_lobyte(speed), self.sts_hibyte(speed)]
+        txpacket = [acc, self.sts_lobyte(position), self.sts_hibyte(position), 0, 0, self.sts_lobyte(speed),
+                    self.sts_hibyte(speed)]
         return self.groupSyncWrite.addParam(sts_id, txpacket)
 
     def RegWritePosEx(self, sts_id, position, speed, acc):
-        txpacket = [acc, self.sts_lobyte(position), self.sts_hibyte(position), 0, 0, self.sts_lobyte(speed), self.sts_hibyte(speed)]
+        txpacket = [acc, self.sts_lobyte(position), self.sts_hibyte(position), 0, 0, self.sts_lobyte(speed),
+                    self.sts_hibyte(speed)]
         return self.regWriteTxRx(sts_id, STS_ACC, len(txpacket), txpacket)
 
     def RegAction(self):
@@ -109,3 +115,20 @@ class sts(protocol_packet_handler):
     def unLockEprom(self, sts_id):
         return self.write1ByteTxRx(sts_id, STS_LOCK, 0)
 
+    def setP(self, sts_id, value):
+        return self.write1ByteTxRx(sts_id, STS_P_VALUE, value)
+
+    def setD(self, sts_id, value):
+        return self.write1ByteTxRx(sts_id, STS_D_VALUE, value)
+
+    def setI(self, sts_id, value):
+        return self.write1ByteTxRx(sts_id, STS_I_VALUE, value)
+
+    def setId(self, sts_id, new_id):
+        return self.write1ByteTxRx(sts_id.STS_ID.new_id)
+
+    def setMinAngle(self, sts_id, value):
+        return self.write2ByteTxRx(sts_id, STS_MIN_ANGLE_LIMIT, value)
+
+    def setMaxAngle(self, sts_id, value):
+        return self.write2ByteTxRx(sts_id, STS_MAX_ANGLE_LIMIT, value)
