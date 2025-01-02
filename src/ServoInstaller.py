@@ -8,8 +8,8 @@ P = 50
 D = 32
 I = 0
 ACCELERATION = 254
-OLD_ID = 10
-NEW_ID = 4
+
+NEW_ID = 1
 STS_MOVING_SPEED            = 0        # STServo moving speed
 STS_MOVING_ACC              = 0         # STServo moving acc
 
@@ -25,6 +25,17 @@ def handle_result(com_res, error):
         print("%s" % packetHandler.getTxRxResult(com_res))
     elif sts_error != 0:
         print("%s" % packetHandler.getRxPacketError(error))
+
+
+def get_servo_id():
+    for id in range(1, 254):
+        sts_model_number, sts_comm_result, sts_error = packetHandler.ping(id)
+        if sts_comm_result == 0:
+            print("[ID:%03d] ping Succeeded. STServo model number : %d" % (id, sts_model_number))
+            return id
+        if sts_error != 0:
+            print("%s" % packetHandler.getRxPacketError(sts_error))
+
 
 if portHandler.openPort():
     print("Succeeded to open the port")
@@ -42,9 +53,12 @@ else:
     print("Press any key to terminate...")
     quit()
 
-if NEW_ID != OLD_ID:
+old_id = get_servo_id()
+
+
+if NEW_ID != old_id:
     print("writing new id")
-    sts_comm_result, sts_error = packetHandler.setId(OLD_ID, NEW_ID)
+    sts_comm_result, sts_error = packetHandler.setId(old_id, NEW_ID)
     handle_result(sts_comm_result, sts_error)
 
     sts_model_number, sts_comm_result, sts_error = packetHandler.ping(NEW_ID)
