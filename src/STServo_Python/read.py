@@ -27,20 +27,14 @@ else:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
 
-sys.path.append("..")
-from STservo_sdk import *                 # Uses STServo SDK library
+sys.path.append("../..")
+from src.STservo_sdk import *                      # Uses STServo SDK library
 
 # Default setting
 STS_ID                      = 1                 # STServo ID : 1
 BAUDRATE                    = 1000000           # STServo default baudrate : 1000000
 DEVICENAME                  = 'COM11'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
-STS_MOVING_SPEED0           = 2400        # STServo moving speed
-STS_MOVING_SPEED1           = -2400       # STServo moving speed
-STS_MOVING_ACC              = 50          # STServo moving acc
-
-index = 0
-sts_move_speed = [STS_MOVING_SPEED0, 0, STS_MOVING_SPEED1, 0]
 
 # Initialize PortHandler instance
 # Set the port path
@@ -49,7 +43,7 @@ portHandler = PortHandler(DEVICENAME)
 
 # Initialize PacketHandler instance
 # Get methods and members of Protocol
-packetHandler = sts(portHandler)
+packetHandler = Sts(portHandler)
     
 # Open port
 if portHandler.openPort():
@@ -69,27 +63,18 @@ else:
     getch()
     quit()
 
-sts_comm_result, sts_error = packetHandler.WheelMode(STS_ID)
-if sts_comm_result != COMM_SUCCESS:
-    print("%s" % packetHandler.getTxRxResult(sts_comm_result))
-elif sts_error != 0:
-    print("%s" % packetHandler.getRxPacketError(sts_error))
 while 1:
     print("Press any key to continue! (or press ESC to quit!)")
     if getch() == chr(0x1b):
         break
-
-    # Write STServo goal position/moving speed/moving acc
-    sts_comm_result, sts_error = packetHandler.WriteSpec(STS_ID, sts_move_speed[index], STS_MOVING_ACC)
+    # Read STServo present position
+    sts_present_position, sts_present_speed, sts_comm_result, sts_error = packetHandler.ReadPosSpeed(STS_ID)
     if sts_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler.getTxRxResult(sts_comm_result))
+        print(packetHandler.getTxRxResult(sts_comm_result))
+    else:
+        print("[ID:%03d] PresPos:%d PresSpd:%d" % (STS_ID, sts_present_position, sts_present_speed))
     if sts_error != 0:
-        print("%s" % packetHandler.getRxPacketError(sts_error))
-
-    # Change move speed
-    index += 1
-    if index == 4:
-        index = 0
+        print(packetHandler.getRxPacketError(sts_error))
 
 # Close port
 portHandler.closePort()

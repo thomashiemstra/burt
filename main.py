@@ -39,7 +39,7 @@ class Slider(object):
 
     def _slider_changed(self, event):
         target_position = self._map(self._current_value.get())
-
+        print(target_position)
         p.setJointMotorControl2(bodyUniqueId=self._body_id,
                                 jointIndex=self._joint_index,
                                 controlMode=p.POSITION_CONTROL,
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     p.setRealTimeSimulation(1, physicsClientId=physics_client)
     p.resetDebugVisualizerCamera(1, -40, -40, cameraTargetPosition=[-0.2, -0.1, 0.5])
 
-    # body_id = p.loadURDF(current_dir + "/urdf/burt.urdf", physicsClientId=physics_client)
-    body_id = p.loadURDF(current_dir + "/abb_irb4600_support/test_abb_4600.urdf", physicsClientId=physics_client)
+    body_id = p.loadURDF(current_dir + "/urdf/burt.urdf", physicsClientId=physics_client)
+    # body_id = p.loadURDF(current_dir + "/abb_irb4600_support/test_abb_4600.urdf", physicsClientId=physics_client)
 
     number_of_joints = p.getNumJoints(body_id)
 

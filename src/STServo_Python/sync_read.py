@@ -26,8 +26,8 @@ else:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
 
-sys.path.append("..")
-from STservo_sdk import *                       # Uses STServo SDK library
+sys.path.append("../..")
+from src.STservo_sdk import *                       # Uses STServo SDK library
 
 # Default setting
 BAUDRATE                    = 1000000           # SCServo default baudrate : 1000000
@@ -41,7 +41,7 @@ portHandler = PortHandler(DEVICENAME)
 
 # Initialize PacketHandler instance
 # Get methods and members of Protocol
-packetHandler = sts(portHandler)
+packetHandler = Sts(portHandler)
 
 # Open port
 if portHandler.openPort():

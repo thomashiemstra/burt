@@ -59,7 +59,7 @@ STS_PRESENT_CURRENT_L = 69
 STS_PRESENT_CURRENT_H = 70
 
 
-class sts(protocol_packet_handler):
+class Sts(protocol_packet_handler):
     def __init__(self, portHandler):
         protocol_packet_handler.__init__(self, portHandler, 0)
         self.groupSyncWrite = GroupSyncWrite(self, STS_ACC, 7)
@@ -68,6 +68,10 @@ class sts(protocol_packet_handler):
         txpacket = [acc, self.sts_lobyte(position), self.sts_hibyte(position), 0, 0, self.sts_lobyte(speed),
                     self.sts_hibyte(speed)]
         return self.writeTxRx(sts_id, STS_ACC, len(txpacket), txpacket)
+
+    def WritePos(self, sts_id, position):
+        txpacket = [self.sts_lobyte(position), self.sts_hibyte(position)]
+        return self.writeTxRx(sts_id, STS_GOAL_POSITION_L, len(txpacket), txpacket)
 
     def ReadPos(self, sts_id):
         sts_present_position, sts_comm_result, sts_error = self.read2ByteTxRx(sts_id, STS_PRESENT_POSITION_L)
@@ -125,7 +129,7 @@ class sts(protocol_packet_handler):
         return self.write1ByteTxRx(sts_id, STS_I_VALUE, value)
 
     def setId(self, sts_id, new_id):
-        return self.write1ByteTxRx(sts_id.STS_ID.new_id)
+        return self.write1ByteTxRx(sts_id, STS_ID, new_id)
 
     def setMinAngle(self, sts_id, value):
         return self.write2ByteTxRx(sts_id, STS_MIN_ANGLE_LIMIT, value)
