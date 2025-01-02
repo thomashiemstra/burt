@@ -94,6 +94,11 @@ print("writing pos 2")
 sts_comm_result, sts_error = packetHandler.WritePos(NEW_ID, 4095)
 handle_result(sts_comm_result, sts_error)
 
+sleep(2)
+
+print("writing neutral pos")
+sts_comm_result, sts_error = packetHandler.WritePos(NEW_ID, 2048)
+handle_result(sts_comm_result, sts_error)
 
 # Close port
 portHandler.closePort()
