@@ -97,6 +97,10 @@ class Sts(protocol_packet_handler):
                     self.sts_hibyte(speed)]
         return self.groupSyncWrite.addParam(sts_id, txpacket)
 
+    def SyncWritePos(self, sts_id, position):
+        txpacket = [self.sts_lobyte(position), self.sts_hibyte(position)]
+        return self.groupSyncWrite.addParam(sts_id, txpacket)
+
     def RegWritePosEx(self, sts_id, position, speed, acc):
         txpacket = [acc, self.sts_lobyte(position), self.sts_hibyte(position), 0, 0, self.sts_lobyte(speed),
                     self.sts_hibyte(speed)]

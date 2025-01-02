@@ -1,6 +1,7 @@
-from src.STservo_sdk import Sts
+from src.STservo_sdk import Sts, GroupSyncWrite, STS_GOAL_POSITION_L
 import numpy as np
 from numpy import pi
+from typing import cast
 
 STS_MAXIMUM_POSITION_VALUE = 4095
 STS_MOVING_SPEED = 2400  # STServo moving speed
@@ -12,28 +13,37 @@ MAX_POSITION = 4096
 COMM_SUCCESS = 0
 
 
-def angle_to_position(angle):
-    return int(np.rint(np.interp(angle, [MIN_ANGLE, MAX_ANGLE], [MIN_POSITION, MAX_POSITION])))
+class Servo:
+
+    def __init__(self, id, min_angle, max_angle, min_pos, max_pos):
+        self.id = id
+        self.min_angle = min_angle
+        self.max_angle = max_angle
+        self.min_pos = min_pos
+        self.max_pos = max_pos
+
+    def angle_to_position(self, angle):
+        return int(np.rint(np.interp(angle, [self.min_angle, self.max_angle], [self.min_pos, self.max_pos])))
 
 
 class RobotController:
 
     def __init__(self, packet_handler: Sts):
         self.packet_handler = packet_handler
-        self.servo_mapping = np.array([[1, 4, 7, 10],
-                                       [2, 5, 8, 11],
-                                       [3, 6, 9, 12]])
+        self.servo_mapping =np.array([[Servo(1, -pi, pi, 0, 4095), Servo(4, -pi, pi, 0, 4095), Servo(7, -pi, pi, 0, 4095), Servo(10, -pi, pi, 0, 4095)],
+                                       [Servo(2, -pi, pi, 0, 4095), Servo(5, -pi, pi, 0, 4095), Servo(8, -pi, pi, 0, 4095), Servo(11, -pi, pi, 0, 4095)],
+                                       [Servo(3, -pi, pi, 0, 4095), Servo(6, -pi, pi, 0, 4095), Servo(9, -pi, pi, 0, 4095), Servo(12, -pi, pi, 0, 4095)]])
+        self.packet_handler.groupSyncWrite = GroupSyncWrite(self, STS_GOAL_POSITION_L, 2)
 
     def set_actuator_positions(self, joint_angles):
         for leg_index in range(4):
             for axis_index in range(3):
                 angle = joint_angles[axis_index, leg_index]
-                servo_id = int(self.servo_mapping[axis_index, leg_index])
+                servo = cast(Servo, self.servo_mapping[axis_index, leg_index])
 
-                sts_add_param_result = self.packet_handler.SyncWritePosEx(servo_id, angle, STS_MOVING_SPEED,
-                                                                          STS_MOVING_ACC)
+                sts_add_param_result = self.packet_handler.SyncWritePos(servo.id, angle)
                 if not sts_add_param_result:
-                    print("[ID:%03d] groupSyncWrite add param failed" % servo_id)
+                    print("[ID:%03d] groupSyncWrite add param failed" % servo.id)
 
         sts_comm_result = self.packet_handler.groupSyncWrite.txPacket()
         if sts_comm_result != COMM_SUCCESS:
@@ -41,3 +51,5 @@ class RobotController:
 
         # Clear sync write parameter storage
         self.packet_handler.groupSyncWrite.clearParam()
+
+RobotController(None)

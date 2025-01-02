@@ -31,7 +31,7 @@ from src.STservo_sdk import *                      # Uses STServo SDK library
 
 # Default setting
 BAUDRATE                    = 1000000           # STServo default baudrate : 1000000
-DEVICENAME                  = 'COM11'    # Check which port is being used on your controller
+DEVICENAME                  = 'COM5'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 
 STS_MINIMUM_POSITION_VALUE  = 0                 # STServo will rotate between this value
@@ -72,9 +72,7 @@ else:
     quit()
 
 while 1:
-    print("Press any key to continue! (or press ESC to quit!)")
-    if getch() == chr(0x1b):
-        break
+    input("Press Enter to continue...")
 
     for sts_id in range(1, 11):
         # Add STServo#1~10 goal position\moving speed\moving accc value to the Syncwrite parameter storage
