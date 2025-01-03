@@ -76,7 +76,7 @@ while 1:
 
     for sts_id in range(1, 11):
         # Add STServo#1~10 goal position\moving speed\moving accc value to the Syncwrite parameter storage
-        sts_addparam_result = packetHandler.SyncWritePosEx(sts_id, sts_goal_position[index], STS_MOVING_SPEED, STS_MOVING_ACC)
+        sts_addparam_result = packetHandler.SyncWritePosEx(sts_id, 2048, STS_MOVING_SPEED, STS_MOVING_ACC)
         if sts_addparam_result != True:
             print("[ID:%03d] groupSyncWrite addparam failed" % sts_id)
 

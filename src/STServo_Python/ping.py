@@ -45,11 +45,11 @@ else:
 
 # Try to ping the STServo
 # Get STServo model number
-for id in range (1, 254):
+for id in range (1, 50):
     sts_model_number, sts_comm_result, sts_error = packetHandler.ping(id)
     if sts_comm_result == COMM_SUCCESS:
         print("[ID:%03d] ping Succeeded. STServo model number : %d" % (id, sts_model_number))
-        break
+        # break
     if sts_error != 0:
         print("%s" % packetHandler.getRxPacketError(sts_error))
 

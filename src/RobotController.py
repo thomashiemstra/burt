@@ -30,18 +30,23 @@ class RobotController:
 
     def __init__(self, packet_handler: Sts):
         self.packet_handler = packet_handler
-        self.servo_mapping =np.array([[Servo(1, -pi, pi, 0, 4095), Servo(4, -pi, pi, 0, 4095), Servo(7, -pi, pi, 0, 4095), Servo(10, -pi, pi, 0, 4095)],
-                                       [Servo(2, -pi, pi, 0, 4095), Servo(5, -pi, pi, 0, 4095), Servo(8, -pi, pi, 0, 4095), Servo(11, -pi, pi, 0, 4095)],
-                                       [Servo(3, -pi, pi, 0, 4095), Servo(6, -pi, pi, 0, 4095), Servo(9, -pi, pi, 0, 4095), Servo(12, -pi, pi, 0, 4095)]])
-        self.packet_handler.groupSyncWrite = GroupSyncWrite(self, STS_GOAL_POSITION_L, 2)
+        self.servo_mapping =np.array([[Servo(4, -pi, pi, 4095, 0), Servo(1, -pi, pi, 0, 4095), Servo(7, -pi, pi, 0, 4095), Servo(10, -pi, pi, 0, 4095)],
+                                       [Servo(5, -pi, pi, 0, 4095), Servo(2, -pi, pi, 0, 4095), Servo(8, -pi, pi, 0, 4095), Servo(11, -pi, pi, 0, 4095)],
+                                       [Servo(6, -pi, pi, 0, 4095), Servo(3, -pi, pi, 4095, 0), Servo(9, -pi, pi, 0, 4095), Servo(12, -pi, pi, 0, 4095)]])
+        self.packet_handler.groupSyncWrite = GroupSyncWrite(self.packet_handler, STS_GOAL_POSITION_L, 2)
 
     def set_actuator_positions(self, joint_angles):
-        for leg_index in range(4):
+        self.packet_handler.groupSyncWrite.clearParam()
+        for leg_index in range(1,2):
             for axis_index in range(3):
                 angle = joint_angles[axis_index, leg_index]
                 servo = cast(Servo, self.servo_mapping[axis_index, leg_index])
+                position = servo.angle_to_position(angle)
 
-                sts_add_param_result = self.packet_handler.SyncWritePos(servo.id, angle)
+                if axis_index > 0:
+                    print("writing angle: {} to servo: {} with position: {}".format(angle, servo.id, position))
+
+                sts_add_param_result = self.packet_handler.SyncWritePos(servo.id, position)
                 if not sts_add_param_result:
                     print("[ID:%03d] groupSyncWrite add param failed" % servo.id)
 
@@ -51,5 +56,3 @@ class RobotController:
 
         # Clear sync write parameter storage
         self.packet_handler.groupSyncWrite.clearParam()
-
-RobotController(None)

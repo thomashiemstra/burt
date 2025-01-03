@@ -1,13 +1,14 @@
-from unittest import TestCase
-
 import numpy as np
 
+from src.RobotController import RobotController
+from src.STservo_sdk import PortHandler, Sts
 from src.quad.Command import Command
 from src.quad.Config import Configuration
 from src.quad.Controller import Controller
 from src.quad.Kinematics import four_legs_inverse_kinematics
 from src.quad.State import State, BehaviorState
-
+import time
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     config = Configuration()
@@ -22,32 +23,60 @@ if __name__ == '__main__':
 
     command = Command()
 
-    steps = 1
+    last_loop = time.time()
+
+    portHandler = PortHandler('COM5')
+
+    packetHandler = Sts(portHandler)
+
+    if portHandler.openPort():
+        print("Succeeded to open the port")
+    else:
+        print("Failed to open the port")
+        print("Press any key to terminate...")
+        quit()
+
+    # Set port baudrate
+    if portHandler.setBaudRate(1000000):
+        print("Succeeded to change the baudrate")
+    else:
+        print("Failed to change the baudrate")
+        print("Press any key to terminate...")
+        quit()
+
+    robot = RobotController(packetHandler)
+
+    steps = 1000
 
     res = np.zeros((steps, 3))
-    # command.trot_event = True
-    angles = np.zeros((steps, 3))
 
     state.behavior_state = BehaviorState.REST
+    controller.run(state, command)
+    robot.set_actuator_positions(state.joint_angles)
+
+    command.trot_event = True
 
     for step in range(steps):
+        # now = time.time()
+        # if now - last_loop < config.dt:
+        #     continue
+        # last_loop = time.time()
+        time.sleep(config.dt)
 
-        command.horizontal_velocity = np.array([0.2, 0])
+        command.horizontal_velocity = np.array([0.2,0])
 
         controller.run(state, command)
-        # command.trot_event = False
-        # print(state.foot_locations)
-        res[step] = state.foot_locations[:, 0]
-        angles[step] = state.joint_angles[:, 0]
+        command.trot_event = False
 
-    # print(res)
-    stuff = np.array([[1, 4, 7, 10],
-                                   [2, 5, 8, 11],
-                                   [3, 6, 9, 12]])
-    print(angles)
+        robot.set_actuator_positions(state.joint_angles)
+
+        res[step] = state.rotated_foot_locations[:, 1]
 
 
-    # ax = plt.axes(projection='3d')
-    # ax.plot(res[:, 0], res[:, 1], res[:, 2], 'g')
-    #
-    # plt.show()
+    ax = plt.axes(projection='3d')
+    ax.plot(res[:, 0], res[:, 1], res[:, 2], 'g')
+    ax.set_xlabel('$X$', fontsize=20)
+    ax.set_ylabel('$Y$', fontsize=20)
+
+
+    plt.show()

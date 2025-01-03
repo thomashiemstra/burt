@@ -9,7 +9,7 @@ D = 32
 I = 0
 ACCELERATION = 254
 
-NEW_ID = 3
+NEW_ID = 1
 STS_MOVING_SPEED            = 0        # STServo moving speed
 STS_MOVING_ACC              = 0         # STServo moving acc
 
@@ -55,6 +55,7 @@ else:
 
 old_id = get_servo_id()
 
+packetHandler.unLockEprom(old_id)
 
 if NEW_ID != old_id:
     print("writing new id")
@@ -84,21 +85,22 @@ print("writing  D:")
 sts_comm_result, sts_error = packetHandler.setD(NEW_ID, D)
 handle_result(sts_comm_result, sts_error)
 
-print("writing pos 1")
-sts_comm_result, sts_error = packetHandler.WritePos(NEW_ID, 0)
-handle_result(sts_comm_result, sts_error)
-
-sleep(2)
-
-print("writing pos 2")
-sts_comm_result, sts_error = packetHandler.WritePos(NEW_ID, 4095)
-handle_result(sts_comm_result, sts_error)
-
-sleep(2)
-
-print("writing neutral pos")
-sts_comm_result, sts_error = packetHandler.WritePos(NEW_ID, 2048)
-handle_result(sts_comm_result, sts_error)
+# print("writing pos 1")
+# sts_comm_result, sts_error = packetHandler.WritePos(NEW_ID, 0)
+# handle_result(sts_comm_result, sts_error)
+#
+# sleep(2)
+#
+# print("writing pos 2")
+# sts_comm_result, sts_error = packetHandler.WritePos(NEW_ID, 4095)
+# handle_result(sts_comm_result, sts_error)
+#
+# sleep(2)
+#
+# print("writing neutral pos")
+# sts_comm_result, sts_error = packetHandler.WritePos(NEW_ID, 2048)
+# handle_result(sts_comm_result, sts_error)
 
 # Close port
+packetHandler.LockEprom(NEW_ID)
 portHandler.closePort()

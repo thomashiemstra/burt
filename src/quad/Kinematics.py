@@ -21,6 +21,9 @@ def leg_explicit_inverse_kinematics(r_body_foot, leg_index, config):
     """
     (x, y, z) = r_body_foot
 
+    if leg_index == 1:
+        print("x: {}, y: {}, z: {}".format(x,y,z))
+
     # Distance from the leg origin to the foot, projected into the y-z plane
     R_body_foot_yz = (y ** 2 + z ** 2) ** 0.5
 
@@ -84,7 +87,7 @@ def four_legs_inverse_kinematics(r_body_foot, config):
         Matrix of corresponding joint angles.
     """
     alpha = np.zeros((3, 4))
-    for i in range(4):
+    for i in range(1,2):
         body_offset = config.LEG_ORIGINS[:, i]
         alpha[:, i] = leg_explicit_inverse_kinematics(
             r_body_foot[:, i] - body_offset, i, config
