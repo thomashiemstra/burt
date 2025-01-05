@@ -10,28 +10,14 @@
 import sys
 import os
 
-if os.name == 'nt':
-    import msvcrt
-    def getch():
-        return msvcrt.getch().decode()
-else:
-    import sys, tty, termios
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    def getch():
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
+
 
 sys.path.append("../..")
 from src.STservo_sdk import *                       # Uses STServo SDK library
 
 # Default setting
 BAUDRATE                    = 1000000           # SCServo default baudrate : 1000000
-DEVICENAME                  = 'COM11'    # Check which port is being used on your controller
+DEVICENAME                  = 'COM5'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 
 # Initialize PortHandler instance
@@ -49,7 +35,7 @@ if portHandler.openPort():
 else:
     print("Failed to open the port")
     print("Press any key to terminate...")
-    getch()
+
     quit()
 
 
@@ -59,16 +45,12 @@ if portHandler.setBaudRate(BAUDRATE):
 else:
     print("Failed to change the baudrate")
     print("Press any key to terminate...")
-    getch()
+
     quit()
 
 groupSyncRead = GroupSyncRead(packetHandler, STS_PRESENT_POSITION_L, 4)
 
 while 1:
-    print("Press any key to continue! (or press ESC to quit!)")
-    if getch() == chr(0x1b):
-        break
-
     for sts_id in range(1, 11):
         # Add parameter storage for STServo#1~10 present position value
         sts_addparam_result = groupSyncRead.addParam(sts_id)

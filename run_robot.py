@@ -63,7 +63,7 @@ if __name__ == '__main__':
         # last_loop = time.time()
         time.sleep(config.dt)
 
-        command.horizontal_velocity = np.array([0.2,0])
+        command.horizontal_velocity = np.array([0.3,0])
 
         controller.run(state, command)
         command.trot_event = False

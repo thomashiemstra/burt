@@ -23,7 +23,7 @@ class Configuration:
         self.max_stance_yaw_rate = 2.0
 
         #################### STANCE ####################
-        self.delta_x = 0.15
+        self.delta_x = 0.20
         self.delta_y = 0.09
         self.default_z_ref = -0.16
 
@@ -43,17 +43,17 @@ class Configuration:
             [[1, 1, 1, 0], [1, 0, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]
         )
         self.overlap_time = (
-            0.2 # duration of the phase where all four feet are on the ground
+            0.1 # duration of the phase where all four feet are on the ground
         )
         self.swing_time = (
-            0.30  # duration of the phase when only two feet are on the ground
+            0.15  # duration of the phase when only two feet are on the ground
         )
 
         ######################## GEOMETRY ######################
-        self.LEG_FB = 0.20  # front-back distance from center line to leg axis
+        self.LEG_FB = 0.22  # front-back distance from center line to leg axis
         self.LEG_LR = 0.06 # left-right distance from center line to leg plane
         self.LEG_L2 = 0.1
-        self.LEG_L1 = 0.1
+        self.LEG_L1 = 0.11
         self.ABDUCTION_OFFSET = 0.03  # distance from abduction axis to leg
 
         self.LEG_ORIGINS = np.array(

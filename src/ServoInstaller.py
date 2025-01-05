@@ -9,7 +9,7 @@ D = 32
 I = 0
 ACCELERATION = 254
 
-NEW_ID = 1
+NEW_ID = 6
 STS_MOVING_SPEED            = 0        # STServo moving speed
 STS_MOVING_ACC              = 0         # STServo moving acc
 

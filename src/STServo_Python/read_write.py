@@ -31,7 +31,7 @@ sys.path.append("../..")
 from src.STservo_sdk import *                      # Uses STServo SDK library
 
 # Default setting
-STS_ID                      = 1                 # STServo ID : 1
+STS_ID                      = 2                 # STServo ID : 1
 BAUDRATE                    = 1000000           # STServo default baudrate : 1000000
 DEVICENAME                  = 'COM5'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
@@ -73,12 +73,12 @@ else:
 while 1:
     input("Press Enter to continue...")
 
-    # Write STServo goal position/moving speed/moving acc
-    sts_comm_result, sts_error = packetHandler.WritePosEx(STS_ID, sts_goal_position[index], STS_MOVING_SPEED, STS_MOVING_ACC)
-    if sts_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler.getTxRxResult(sts_comm_result))
-    elif sts_error != 0:
-        print("%s" % packetHandler.getRxPacketError(sts_error))
+    # # Write STServo goal position/moving speed/moving acc
+    # sts_comm_result, sts_error = packetHandler.WritePosEx(STS_ID, sts_goal_position[index], STS_MOVING_SPEED, STS_MOVING_ACC)
+    # if sts_comm_result != COMM_SUCCESS:
+    #     print("%s" % packetHandler.getTxRxResult(sts_comm_result))
+    # elif sts_error != 0:
+    #     print("%s" % packetHandler.getRxPacketError(sts_error))
 
     while 1:
         # Read STServo present position
