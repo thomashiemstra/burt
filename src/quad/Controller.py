@@ -154,10 +154,40 @@ class Controller:
                 rotated_foot_locations, self.config
             )
 
+        elif state.behavior_state == BehaviorState.INSTALL:
+            yaw_proportion = command.yaw_rate / self.config.max_yaw_rate
+            self.smoothed_yaw += (
+                    self.config.dt
+                    * clipped_first_order_filter(
+                        self.smoothed_yaw,
+                        yaw_proportion * -self.config.max_stance_yaw,
+                        self.config.max_stance_yaw_rate,
+                        self.config.yaw_time_constant,
+            )
+            )
+            # Set the foot locations to the default stance plus the standard height
+            state.foot_locations = (
+                    self.config.install_stance
+            )
+            # Apply the desired body rotation
+            rotated_foot_locations = (
+                    euler2mat(
+                        command.roll,
+                        command.pitch,
+                        self.smoothed_yaw,
+                    )
+                    @ state.foot_locations
+            )
+            state.joint_angles = self.inverse_kinematics(
+                rotated_foot_locations, self.config
+            )
+
         state.ticks += 1
         state.pitch = command.pitch
         state.roll = command.roll
         state.height = command.height
+
+
 
     def set_pose_to_default(self):
         state.foot_locations = (

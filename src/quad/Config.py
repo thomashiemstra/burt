@@ -23,7 +23,7 @@ class Configuration:
         self.max_stance_yaw_rate = 2.0
 
         #################### STANCE ####################
-        self.delta_x = 0.20
+        self.delta_x = 0.09
         self.delta_y = 0.09
         self.default_z_ref = -0.16
 
@@ -50,10 +50,10 @@ class Configuration:
         )
 
         ######################## GEOMETRY ######################
-        self.LEG_FB = 0.22  # front-back distance from center line to leg axis
+        self.LEG_FB = 0.11  # front-back distance from center line to leg axis
         self.LEG_LR = 0.06 # left-right distance from center line to leg plane
-        self.LEG_L2 = 0.1
-        self.LEG_L1 = 0.11
+        self.LEG_L2 = 0.11
+        self.LEG_L1 = 0.10
         self.ABDUCTION_OFFSET = 0.03  # distance from abduction axis to leg
 
         self.LEG_ORIGINS = np.array(
@@ -80,6 +80,16 @@ class Configuration:
                 [self.delta_x,  self.delta_x, -self.delta_x, -self.delta_x],
                 [-self.delta_y, self.delta_y, -self.delta_y,  self.delta_y],
                 [0, 0, 0, 0],
+            ]
+        )
+
+    @property
+    def install_stance(self):
+        return np.array(
+            [
+                [self.LEG_FB - self.LEG_L1, self.LEG_FB - self.LEG_L1, -(self.LEG_FB + self.LEG_L1), -(self.LEG_FB + self.LEG_L1)],
+                [-self.delta_y, self.delta_y, -self.delta_y, self.delta_y],
+                [-self.LEG_L2, -self.LEG_L2, -self.LEG_L2, -self.LEG_L2],
             ]
         )
 

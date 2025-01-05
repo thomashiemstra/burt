@@ -50,6 +50,16 @@ for id in range (1, 50):
     if sts_comm_result == COMM_SUCCESS:
         print("[ID:%03d] ping Succeeded. STServo model number : %d" % (id, sts_model_number))
         # break
+
+        sts_present_position, sts_present_speed, sts_comm_result, sts_error = packetHandler.ReadPosSpeed(id)
+        if sts_comm_result != COMM_SUCCESS:
+            print(packetHandler.getTxRxResult(sts_comm_result))
+        else:
+            print("[ID:%03d] PresPos:%d PresSpd:%d" % (
+                id, sts_present_position, sts_present_speed))
+        if sts_error != 0:
+            print(packetHandler.getRxPacketError(sts_error))
+
     if sts_error != 0:
         print("%s" % packetHandler.getRxPacketError(sts_error))
 
