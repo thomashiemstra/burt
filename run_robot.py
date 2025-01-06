@@ -2,6 +2,7 @@ import numpy as np
 
 from src.RobotController import RobotController
 from src.STservo_sdk import PortHandler, Sts
+from src.XboxController import XboxController
 from src.quad.Command import Command
 from src.quad.Config import Configuration
 from src.quad.Controller import Controller
@@ -45,6 +46,8 @@ if __name__ == '__main__':
         quit()
 
     robot = RobotController(packetHandler)
+
+    xbox_controller = XboxController(dead_zone=30, scale=100)
 
     steps = 1000
 
