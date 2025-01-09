@@ -42,9 +42,9 @@ class ControllerState:
 
 
     def __str__(self):
-        return 'Buttons: start={} x={} y={} a={}, b={}, rb={}, lb={}, ' \
+        return 'l_thumb_x: {} l_thumb_y: {} start={} x={} y={} a={}, b={}, rb={}, lb={}, ' \
                'pad_up={}. pad_down={}. pad_left={}, pad_right={}' \
-            .format(self.start, self.x, self.y, self.a, self.b, self.rb, self.lb,
+            .format(self.r_thumb_x, self.r_thumb_y, self.start, self.x, self.y, self.a, self.b, self.rb, self.lb,
                     self.pad_up, self.pad_down, self.pad_left, self.pad_right)
 
 
@@ -53,7 +53,7 @@ class XboxController(object):
     MAX_JOY_VAL = math.pow(2, 15)
 
     def __init__(self,
-                 dead_zone=30,
+                 dead_zone=30.0,
                  scale=1,
                  invert_yaxis=False):
         self.lower_dead_zone = dead_zone * -1
@@ -63,10 +63,10 @@ class XboxController(object):
         self.invert_yaxis_val = -1 if invert_yaxis else 1
         self.lock = threading.RLock()
 
-        self.l_thumb_x = 0
-        self.l_thumb_y = 0
-        self.r_thumb_x = 0
-        self.r_thumb_y = 0
+        self.l_thumb_x = 0.0
+        self.l_thumb_y = 0.0
+        self.r_thumb_x = 0.0
+        self.r_thumb_y = 0.0
         self.lr_trigger = 0
 
         self.start = False
@@ -233,6 +233,6 @@ class XboxController(object):
 
 
 if __name__ == '__main__':
-    joy = XboxController(scale=100)
+    joy = XboxController(scale=1, dead_zone=0.2)
     while True:
         print(joy.get_controller_state())
