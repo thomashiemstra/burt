@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     last_loop = time.time()
 
-    portHandler = PortHandler('COM5')
+    portHandler = PortHandler('COM6')
 
     packetHandler = Sts(portHandler)
 
@@ -47,16 +47,15 @@ if __name__ == '__main__':
 
     robot = RobotController(packetHandler)
 
-    xbox_controller = XboxController(dead_zone=30, scale=100)
+    # xbox_controller = XboxController(dead_zone=30, scale=100)
 
-    steps = 1000
+    steps = 5000
 
     res = np.zeros((steps, 3))
 
     state.behavior_state = BehaviorState.INSTALL
     controller.run(state, command)
     robot.set_actuator_positions(state.joint_angles)
-
 
     # state.behavior_state = BehaviorState.REST
     # controller.run(state, command)
@@ -66,21 +65,21 @@ if __name__ == '__main__':
     #
     # time.sleep(1)
     #
-    # for step in range(steps):
-    #     # now = time.time()
-    #     # if now - last_loop < config.dt:
-    #     #     continue
-    #     # last_loop = time.time()
-    #     time.sleep(config.dt)
+    # while 1:
+    #     now = time.time()
+    #     if now - last_loop < config.dt:
+    #         continue
+    #     last_loop = time.time()
+    #     # time.sleep(config.dt)
     #
-    #     command.horizontal_velocity = np.array([0.3,0])
+    #     command.horizontal_velocity = np.array([0.05,0])
     #
     #     controller.run(state, command)
     #
     #     command.trot_event = False
     #     robot.set_actuator_positions(state.joint_angles)
-    #
-    #     res[step] = state.rotated_foot_locations[:, 1]
+
+
 
 
     # ax = plt.axes(projection='3d')
