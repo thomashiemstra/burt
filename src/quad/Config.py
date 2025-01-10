@@ -37,10 +37,10 @@ class Configuration:
             [[1, 1, 1, 0], [1, 0, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]
         )
         self.overlap_time = (
-            0.2 # duration of the phase where all four feet are on the ground
+            0.15  # duration of the phase where all four feet are on the ground
         )
         self.swing_time = (
-            0.1 # duration of the phase when only two feet are on the ground
+            0.1  # duration of the phase when only two feet are on the ground
         )
 
         ######################## GEOMETRY ######################
@@ -72,7 +72,7 @@ class Configuration:
         self.delta_x = 0.10
         self.x_shift = 0.04
         self.delta_y = 0.01
-        self.default_z_ref = -0.16
+        self.default_z_ref = -0.15
 
     @property
     def default_stance(self):

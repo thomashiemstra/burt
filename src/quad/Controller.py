@@ -37,6 +37,7 @@ class Controller:
         self.trot_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST})
         self.trot_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
         self.activate_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST})
+        self.activate_transition_mapping.update({BehaviorState.TROT: BehaviorState.DEACTIVATED})
         self.install_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
 
 

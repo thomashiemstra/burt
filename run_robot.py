@@ -8,9 +8,8 @@ from src.quad.Command import Command
 from src.quad.Config import Configuration
 from src.quad.Controller import Controller
 from src.quad.Kinematics import four_legs_inverse_kinematics
-from src.quad.State import State, BehaviorState
+from src.quad.State import State
 import time
-import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     config = Configuration()
@@ -20,7 +19,7 @@ if __name__ == '__main__':
         four_legs_inverse_kinematics,
     )
 
-    state = State()
+    state = State(config)
     state.quat_orientation = np.array([1, 0, 0, 0])
 
     command = Command(config)
@@ -54,7 +53,7 @@ if __name__ == '__main__':
     while True:
         print("Waiting for start to activate robot.")
         while True:
-            command = joystick_interface.get_command(state)
+            command = joystick_interface.get_command(state, config)
             if command.activate_event == 1:
                 break
             time.sleep(0.1)
@@ -66,6 +65,6 @@ if __name__ == '__main__':
                 continue
             last_loop = time.time()
 
-            command = joystick_interface.get_command(state)
+            command = joystick_interface.get_command(state, config)
             controller.run(state, command)
             robot.set_actuator_positions(state.joint_angles)

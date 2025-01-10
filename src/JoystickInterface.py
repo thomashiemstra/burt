@@ -26,10 +26,10 @@ class JoystickInterface:
         self.controller = controller
         self.enable_install = enable_install
 
-    def get_command(self, state, do_print=False):
+    def get_command(self, state, config):
         controller_state = cast(ControllerState, self.controller.get_controller_state())
 
-        command = Command()
+        command = Command(config)
 
         ####### Handle discrete commands ########
         # Check if requesting a state transition to trotting, or from trotting to resting
