@@ -4,7 +4,7 @@ from tkinter import ttk
 
 class ConfigEditor(object):
 
-    def __init__(self, root, config_val, upper, lower, name='unkown', row=0) -> None:
+    def __init__(self, root, config_val, upper, lower, name='unknown', row=0) -> None:
         self.name = name
         self._current_value = tk.DoubleVar()
 
@@ -21,15 +21,19 @@ class ConfigEditor(object):
             length=400
         )
 
+        self.slider.set(config_val)
+
         self.slider.grid(
-            column=0,
+            column=1,
             row=row,
-            sticky='we'
+            sticky='e'
         )
+
+        ttk.Label(root, text=name).grid(row=row, column=0, pady=4, padx=4)
 
     def _slider_changed(self, event):
         new_val = self._current_value.get()
-        print("new " + self.name + " val:" + str(new_val))
+        print(self.name + ": " + str(new_val))
         self.change_val(self._current_value.get())
 
     def change_val(self, val):

@@ -53,13 +53,18 @@ if __name__ == '__main__':
     joystick_interface = JoystickInterface(config, xboxController, enable_install=True)
 
     root = tk.Tk()
-    root.geometry('400x500')
+    root.geometry('500x500')
     # root.resizable(False, False)
     root.title('Slider Demo')
 
     def change_x(val):
         config.swing_time = val
-    test = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time')
+    test = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time', row=0)
+    test.change_val = change_x
+
+    def change_x(val):
+        config.overlap_time = val
+    test = ConfigEditor(root, config.overlap_time, config.overlap_time, config.overlap_time, 'overlap time', row=1)
     test.change_val = change_x
 
     # while True:
