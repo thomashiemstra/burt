@@ -5,7 +5,7 @@ from enum import Enum
 class Configuration:
     def __init__(self):
                 #################### COMMANDS ####################
-        self.max_x_velocity = 0.2
+        self.max_x_velocity = 0.15
         self.max_y_velocity = 0.1
         self.max_yaw_rate = 1.0
         self.max_pitch = 30.0 * np.pi / 180.0
@@ -31,13 +31,14 @@ class Configuration:
         )
 
         #################### GAIT #######################
+        self.delay_factor = 1.3
         self.dt = 0.005
         self.num_phases = 4
         self.contact_phases = np.array(
             [[1, 1, 1, 0], [1, 0, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]
         )
         self.overlap_time = (
-            0.08 # duration of the phase where all four feet are on the ground
+            0.12 # duration of the phase where all four feet are on the ground
         )
         self.swing_time = (
             0.05 # duration of the phase when only two feet are on the ground
@@ -71,8 +72,8 @@ class Configuration:
         #################### STANCE ####################
         self.delta_x = 0.10
         self.x_shift = 0.02
-        self.delta_y = 0.00
-        self.default_z_ref = -0.16
+        self.delta_y = 0.01
+        self.default_z_ref = -0.15
 
     @property
     def default_stance(self):

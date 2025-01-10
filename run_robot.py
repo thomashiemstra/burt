@@ -50,7 +50,7 @@ if __name__ == '__main__':
     xboxController = XboxController(scale=1, dead_zone=0.2)
     joystick_interface = JoystickInterface(config, xboxController, enable_install=True)
 
-    delay_factor = 1.5
+
     # while True:
     #     print("Waiting for start to activate robot.")
     #     while True:
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     state.behavior_state = BehaviorState.REST
     while True:
         now = time.time()
-        if now - last_loop < config.dt*delay_factor:
+        if now - last_loop < config.dt * config.delay_factor:
             continue
         last_loop = time.time()
 
