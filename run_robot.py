@@ -57,15 +57,35 @@ if __name__ == '__main__':
     # root.resizable(False, False)
     root.title('Slider Demo')
 
-    def change_x(val):
-        config.swing_time = val
-    test = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time', row=0)
-    test.change_val = change_x
+    row_index = 0
 
-    def change_x(val):
+
+    def change(val):
+        config.swing_time = val
+
+
+    test = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time', row=row_index)
+    test.change_val = change
+    row_index += 1
+
+
+    def change(val):
         config.overlap_time = val
-    test = ConfigEditor(root, config.overlap_time, config.overlap_time, config.overlap_time, 'overlap time', row=1)
-    test.change_val = change_x
+
+
+    test = ConfigEditor(root, config.overlap_time, config.overlap_time, config.overlap_time, 'overlap time',
+                        row=row_index)
+    test.change_val = change
+    row_index += 1
+
+
+    def button_clicked():
+        print(config)
+    tk.Button(root,
+              text="dump config",
+              anchor="center",
+              command=button_clicked
+              ).grid(row=row_index, column=1)
 
     # while True:
     #     print("Waiting for start to activate robot.")

@@ -1,7 +1,9 @@
 import numpy as np
-from enum import Enum
+
+from src.Util import auto_str_newline
 
 
+@auto_str_newline
 class Configuration:
     def __init__(self):
                 #################### COMMANDS ####################
@@ -130,37 +132,7 @@ class Configuration:
     def phase_length(self):
         return 2 * self.overlap_ticks + 2 * self.swing_ticks
 
-        
-class SimulationConfig:
-    def __init__(self):
-        self.XML_IN = "pupper.xml"
-        self.XML_OUT = "pupper_out.xml"
+    def __str__(self):
+        return "wew"
 
-        self.START_HEIGHT = 0.3
-        self.MU = 1.5  # coeff friction
-        self.DT = 0.001  # seconds between simulation steps
-        self.JOINT_SOLREF = "0.001 1"  # time constant and damping ratio for joints
-        self.JOINT_SOLIMP = "0.9 0.95 0.001"  # joint constraint parameters
-        self.GEOM_SOLREF = "0.01 1"  # time constant and damping ratio for geom contacts
-        self.GEOM_SOLIMP = "0.9 0.95 0.001"  # geometry contact parameters
-        
-        # Joint params
-        G = 220  # Servo gear ratio
-        m_rotor = 0.016  # Servo rotor mass
-        r_rotor = 0.005  # Rotor radius
-        self.ARMATURE = G ** 2 * m_rotor * r_rotor ** 2  # Inertia of rotational joints
-        # print("Servo armature", self.ARMATURE)
 
-        NATURAL_DAMPING = 1.0  # Damping resulting from friction
-        ELECTRICAL_DAMPING = 0.049  # Damping resulting from back-EMF
-
-        self.REV_DAMPING = (
-            NATURAL_DAMPING + ELECTRICAL_DAMPING
-        )  # Damping torque on the revolute joints
-
-        # Servo params
-        self.SERVO_REV_KP = 300  # Position gain [Nm/rad]
-
-        # Force limits
-        self.MAX_JOINT_TORQUE = 3.0
-        self.REVOLUTE_RANGE = 1.57

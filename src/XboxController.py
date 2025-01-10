@@ -1,25 +1,11 @@
-import functools
-import sys
-from time import sleep
-
 from inputs import get_gamepad
 import math
 import threading
 
-
-def synchronized_with_lock(lock_name):
-    def decorator(method):
-        @functools.wraps(method)
-        def synced_method(self, *args, **kws):
-            lock = getattr(self, lock_name)
-            with lock:
-                return method(self, *args, **kws)
-
-        return synced_method
-
-    return decorator
+from src.Util import auto_str, synchronized_with_lock
 
 
+@auto_str
 class ControllerState:
     def __init__(self, l_thumb_x, l_thumb_y, r_thumb_x, r_thumb_y, lr_trigger, start, select, x, y, a, b, rb, lb,
                  pad_up, pad_down, pad_left, pad_right,
@@ -42,12 +28,6 @@ class ControllerState:
         self.r_thumb_x = r_thumb_x
         self.r_thumb_y = r_thumb_y
         self.lr_trigger = lr_trigger
-
-    def __str__(self):
-        return 'l_thumb_x: {} l_thumb_y: {} start={} select={} x={} y={} a={}, b={}, rb={}, lb={}, ' \
-               'pad_up={}. pad_down={}. pad_left={}, pad_right={}' \
-            .format(self.r_thumb_x, self.r_thumb_y, self.start, self.select, self.x, self.y, self.a, self.b, self.rb, self.lb,
-                    self.pad_up, self.pad_down, self.pad_left, self.pad_right)
 
 
 class XboxController(object):
