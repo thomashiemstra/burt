@@ -16,6 +16,5 @@ class Command:
         self.activation = 0
 
         self.install_event = False
-        self.hop_event = False
         self.trot_event = False
         self.activate_event = False

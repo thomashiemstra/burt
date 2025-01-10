@@ -5,8 +5,10 @@ from src.quad.Command import Command
 from src.quad.State import BehaviorState
 from typing import cast
 
+
 def deadband(value, band_radius):
     return max(value - band_radius, 0) + min(value + band_radius, 0)
+
 
 def clipped_first_order_filter(input, target, max_rate, tau):
     rate = (target - input) / tau
@@ -20,7 +22,6 @@ class JoystickInterface:
         self.config = config
         self.previous_gait_toggle = 0
         self.previous_state = BehaviorState.REST
-        self.previous_hop_toggle = 0
         self.previous_activate_toggle = 0
         self.previous_install_toggle = 0
         self.controller = controller
@@ -35,10 +36,6 @@ class JoystickInterface:
         # Check if requesting a state transition to trotting, or from trotting to resting
         gait_toggle = controller_state.rb
         command.trot_event = (gait_toggle == 1 and self.previous_gait_toggle == 0)
-
-        # Check if requesting a state transition to hopping, from trotting or resting
-        hop_toggle = controller_state.x
-        command.hop_event = (hop_toggle == 1 and self.previous_hop_toggle == 0)
 
         activate_toggle = controller_state.start
         command.activate_event = (activate_toggle == 1 and self.previous_activate_toggle == 0)
@@ -58,25 +55,32 @@ class JoystickInterface:
         command.horizontal_velocity = np.array([x_vel, y_vel])
         command.yaw_rate = controller_state.r_thumb_x * self.config.max_yaw_rate
 
-        # message_rate = msg["message_rate"]
-        # message_dt = 1.0 / message_rate
-        #
-        # pitch = msg["ry"] * self.config.max_pitch
-        # deadbanded_pitch = deadband(
-        #     pitch, self.config.pitch_deadband
-        # )
-        # pitch_rate = clipped_first_order_filter(
-        #     state.pitch,
-        #     deadbanded_pitch,
-        #     self.config.max_pitch_rate,
-        #     self.config.pitch_time_constant,
-        # )
-        # command.pitch = state.pitch + message_dt * pitch_rate
-        #
+        message_dt = 1.0 / 10
+
+        pitch = controller_state.l_thumb_y * self.config.max_pitch
+        deadbanded_pitch = deadband(
+            pitch, self.config.pitch_deadband
+        )
+        pitch_rate = clipped_first_order_filter(
+            state.pitch,
+            deadbanded_pitch,
+            self.config.max_pitch_rate,
+            self.config.pitch_time_constant,
+        )
+        command.pitch = state.pitch + message_dt * pitch_rate
+
         height_movement = controller_state.lr_trigger
         command.height = state.height - 0.01 * self.config.z_speed * height_movement
 
-        # roll_movement = - msg["dpadx"]
-        # command.roll = state.roll + message_dt * self.config.roll_speed * roll_movement
+        roll_movement = self._get_pad_x_direction(controller_state)
+        command.roll = state.roll + message_dt * self.config.roll_speed * roll_movement
 
         return command
+
+    @staticmethod
+    def _get_pad_x_direction(controller_state):
+        if controller_state.pad_right:
+            return 1
+        if controller_state.pad_left:
+            return -1
+        return 0

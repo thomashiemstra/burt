@@ -247,6 +247,6 @@ if __name__ == '__main__':
     joy = XboxController(scale=1, dead_zone=0.3)
 
     while True:
-        print(joy.get_controller_state().__str__(), end='\r')
+        print(joy.get_controller_state().__str__())
         # sleep(1)
 

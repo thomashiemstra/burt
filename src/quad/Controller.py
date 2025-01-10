@@ -27,13 +27,10 @@ class Controller:
         self.swing_controller = SwingController(self.config)
         self.stance_controller = StanceController(self.config)
 
-        self.hop_transition_mapping = {BehaviorState.REST: BehaviorState.HOP, BehaviorState.HOP: BehaviorState.FINISHHOP, BehaviorState.FINISHHOP: BehaviorState.REST, BehaviorState.TROT: BehaviorState.HOP}
         self.trot_transition_mapping = {BehaviorState.REST: BehaviorState.TROT, BehaviorState.TROT: BehaviorState.REST, BehaviorState.HOP: BehaviorState.TROT, BehaviorState.FINISHHOP: BehaviorState.TROT}
         self.activate_transition_mapping = {BehaviorState.DEACTIVATED: BehaviorState.REST, BehaviorState.REST: BehaviorState.DEACTIVATED}
         self.install_transition_mapping = {BehaviorState.REST: BehaviorState.PRE_INSTALL, BehaviorState.TROT: BehaviorState.PRE_INSTALL,  BehaviorState.PRE_INSTALL: BehaviorState.INSTALL, BehaviorState.INSTALL: BehaviorState.REST}
 
-        self.hop_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST})
-        self.hop_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
         self.trot_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST})
         self.trot_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
         self.activate_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST})
@@ -86,9 +83,6 @@ class Controller:
         elif command.trot_event:
             state.behavior_state = self.trot_transition_mapping[state.behavior_state]
             print(state.behavior_state.__str__())
-        elif command.hop_event:
-            state.behavior_state = self.hop_transition_mapping[state.behavior_state]
-            print(state.behavior_state.__str__())
         elif command.install_event:
             state.behavior_state = self.install_transition_mapping[state.behavior_state]
             if state.behavior_state == BehaviorState.PRE_INSTALL:
@@ -123,24 +117,6 @@ class Controller:
                 rotated_foot_locations, self.config
             )
             state.rotated_foot_locations = rotated_foot_locations
-
-        elif state.behavior_state == BehaviorState.HOP:
-            state.foot_locations = (
-                self.config.default_stance
-                + np.array([0, 0, -0.09])[:, np.newaxis]
-            )
-            state.joint_angles = self.inverse_kinematics(
-                state.foot_locations, self.config
-            )
-
-        elif state.behavior_state == BehaviorState.FINISHHOP:
-            state.foot_locations = (
-                self.config.default_stance
-                + np.array([0, 0, -0.22])[:, np.newaxis]
-            )
-            state.joint_angles = self.inverse_kinematics(
-                state.foot_locations, self.config
-            )
 
         elif state.behavior_state == BehaviorState.REST:
             yaw_proportion = command.yaw_rate / self.config.max_yaw_rate
