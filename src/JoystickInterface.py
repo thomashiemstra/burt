@@ -45,29 +45,28 @@ class JoystickInterface:
 
         # Update previous values for toggles and state
         self.previous_gait_toggle = gait_toggle
-        self.previous_hop_toggle = hop_toggle
         self.previous_activate_toggle = activate_toggle
         self.previous_install_toggle = install_toggle
 
         ####### Handle continuous commands ########
-        x_vel = np.clip(controller_state.l_thumb_y * self.config.max_x_velocity, -0.1, self.config.max_x_velocity)
+        x_vel = np.clip(controller_state.l_thumb_y * self.config.max_x_velocity, -self.config.max_x_velocity/2, self.config.max_x_velocity)
         y_vel = controller_state.l_thumb_x * self.config.max_y_velocity
         command.horizontal_velocity = np.array([x_vel, y_vel])
         command.yaw_rate = controller_state.r_thumb_x * self.config.max_yaw_rate
 
         message_dt = 1.0 / 10
 
-        pitch = controller_state.l_thumb_y * self.config.max_pitch
-        deadbanded_pitch = deadband(
-            pitch, self.config.pitch_deadband
-        )
-        pitch_rate = clipped_first_order_filter(
-            state.pitch,
-            deadbanded_pitch,
-            self.config.max_pitch_rate,
-            self.config.pitch_time_constant,
-        )
-        command.pitch = state.pitch + message_dt * pitch_rate
+        # pitch = controller_state.r_thumb_y * self.config.max_pitch
+        # deadbanded_pitch = deadband(
+        #     pitch, self.config.pitch_deadband
+        # )
+        # pitch_rate = clipped_first_order_filter(
+        #     state.pitch,
+        #     deadbanded_pitch,
+        #     self.config.max_pitch_rate,
+        #     self.config.pitch_time_constant,
+        # )
+        # command.pitch = state.pitch + message_dt * pitch_rate
 
         height_movement = controller_state.lr_trigger
         command.height = state.height - 0.01 * self.config.z_speed * height_movement
