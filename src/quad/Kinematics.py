@@ -20,6 +20,7 @@ def leg_explicit_inverse_kinematics(r_body_foot, leg_index, config):
         Array of corresponding joint angles.
     """
     (x, y, z) = r_body_foot
+    z = z + config.FOOT_RADIUS
     # print("x: {}, y: {}, z: {}".format(x,y,z))
 
     # Distance from the leg origin to the foot, projected into the y-z plane
