@@ -30,6 +30,14 @@ class Controller:
         self.hop_transition_mapping = {BehaviorState.REST: BehaviorState.HOP, BehaviorState.HOP: BehaviorState.FINISHHOP, BehaviorState.FINISHHOP: BehaviorState.REST, BehaviorState.TROT: BehaviorState.HOP}
         self.trot_transition_mapping = {BehaviorState.REST: BehaviorState.TROT, BehaviorState.TROT: BehaviorState.REST, BehaviorState.HOP: BehaviorState.TROT, BehaviorState.FINISHHOP: BehaviorState.TROT}
         self.activate_transition_mapping = {BehaviorState.DEACTIVATED: BehaviorState.REST, BehaviorState.REST: BehaviorState.DEACTIVATED}
+        self.install_transition_mapping = {BehaviorState.REST: BehaviorState.PRE_INSTALL, BehaviorState.TROT: BehaviorState.PRE_INSTALL,  BehaviorState.PRE_INSTALL: BehaviorState.INSTALL, BehaviorState.INSTALL: BehaviorState.REST}
+
+        self.hop_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST})
+        self.hop_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
+        self.trot_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST})
+        self.trot_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
+        self.activate_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST})
+        self.install_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
 
 
     def step_gait(self, state, command):
@@ -73,10 +81,18 @@ class Controller:
         ########## Update operating state based on command ######
         if command.activate_event:
             state.behavior_state = self.activate_transition_mapping[state.behavior_state]
+            print(state.behavior_state.__str__())
         elif command.trot_event:
             state.behavior_state = self.trot_transition_mapping[state.behavior_state]
+            print(state.behavior_state.__str__())
         elif command.hop_event:
             state.behavior_state = self.hop_transition_mapping[state.behavior_state]
+            print(state.behavior_state.__str__())
+        elif command.install_event:
+            state.behavior_state = self.install_transition_mapping[state.behavior_state]
+            if state.behavior_state == BehaviorState.PRE_INSTALL:
+                print("press select again to confirm install state")
+            print(state.behavior_state.__str__())
 
         if state.behavior_state == BehaviorState.TROT:
             state.foot_locations, contact_modes = self.step_gait(
@@ -154,46 +170,17 @@ class Controller:
                 rotated_foot_locations, self.config
             )
 
+        elif state.behavior_state == BehaviorState.PRE_INSTALL:
+            pass
         elif state.behavior_state == BehaviorState.INSTALL:
-            yaw_proportion = command.yaw_rate / self.config.max_yaw_rate
-            self.smoothed_yaw += (
-                    self.config.dt
-                    * clipped_first_order_filter(
-                        self.smoothed_yaw,
-                        yaw_proportion * -self.config.max_stance_yaw,
-                        self.config.max_stance_yaw_rate,
-                        self.config.yaw_time_constant,
-            )
-            )
-            # Set the foot locations to the default stance plus the standard height
-            state.foot_locations = (
+            foot_locations = (
                     self.config.install_stance
             )
-            # Apply the desired body rotation
-            rotated_foot_locations = (
-                    euler2mat(
-                        command.roll,
-                        command.pitch,
-                        self.smoothed_yaw,
-                    )
-                    @ state.foot_locations
-            )
             state.joint_angles = self.inverse_kinematics(
-                rotated_foot_locations, self.config
+                foot_locations, self.config
             )
 
         state.ticks += 1
         state.pitch = command.pitch
         state.roll = command.roll
         state.height = command.height
-
-
-
-    def set_pose_to_default(self):
-        state.foot_locations = (
-            self.config.default_stance
-            + np.array([0, 0, self.config.default_z_ref])[:, np.newaxis]
-        )
-        state.joint_angles = controller.inverse_kinematics(
-            state.foot_locations, self.config
-        )
