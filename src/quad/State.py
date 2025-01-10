@@ -27,3 +27,4 @@ class BehaviorState(Enum):
     HOP = 2
     FINISHHOP = 3
     INSTALL = 4
+    PRE_INSTALL = 5

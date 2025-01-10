@@ -1,4 +1,6 @@
 import functools
+import sys
+from time import sleep
 
 from inputs import get_gamepad
 import math
@@ -19,7 +21,7 @@ def synchronized_with_lock(lock_name):
 
 
 class ControllerState:
-    def __init__(self, l_thumb_x, l_thumb_y, r_thumb_x, r_thumb_y, lr_trigger, start, x, y, a, b, rb, lb,
+    def __init__(self, l_thumb_x, l_thumb_y, r_thumb_x, r_thumb_y, lr_trigger, start, select, x, y, a, b, rb, lb,
                  pad_up, pad_down, pad_left, pad_right,
 
                  ):
@@ -30,6 +32,7 @@ class ControllerState:
         self.y = y
         self.x = x
         self.start = start
+        self.select = select
         self.pad_up = pad_up
         self.pad_down = pad_down
         self.pad_left = pad_left
@@ -40,11 +43,10 @@ class ControllerState:
         self.r_thumb_y = r_thumb_y
         self.lr_trigger = lr_trigger
 
-
     def __str__(self):
-        return 'l_thumb_x: {} l_thumb_y: {} start={} x={} y={} a={}, b={}, rb={}, lb={}, ' \
+        return 'l_thumb_x: {} l_thumb_y: {} start={} select={} x={} y={} a={}, b={}, rb={}, lb={}, ' \
                'pad_up={}. pad_down={}. pad_left={}, pad_right={}' \
-            .format(self.r_thumb_x, self.r_thumb_y, self.start, self.x, self.y, self.a, self.b, self.rb, self.lb,
+            .format(self.r_thumb_x, self.r_thumb_y, self.start, self.select, self.x, self.y, self.a, self.b, self.rb, self.lb,
                     self.pad_up, self.pad_down, self.pad_left, self.pad_right)
 
 
@@ -70,6 +72,7 @@ class XboxController(object):
         self.lr_trigger = 0
 
         self.start = False
+        self.select = False
         self.x = False
         self.y = False
         self.a = False
@@ -104,8 +107,8 @@ class XboxController(object):
     @synchronized_with_lock("lock")
     def get_controller_state(self):
         state = ControllerState(
-            self.l_thumb_x, self.l_thumb_y, self.r_thumb_x, self.r_thumb_y, self.lr_trigger, self.start, self.x, self.y,
-            self.a, self.b, self.rb, self.lb,
+            self.l_thumb_x, self.l_thumb_y, self.r_thumb_x, self.r_thumb_y, self.lr_trigger,
+            self.start, self.select, self.x, self.y, self.a, self.b, self.rb, self.lb,
             self.pad_up, self.pad_down, self.pad_left, self.pad_right)
         return state
 
@@ -146,6 +149,9 @@ class XboxController(object):
                         self._pad_left_right(event.state)
                     case 'ABS_HAT0Y':
                         self._pad_up_down(event.state)
+                    case 'BTN_SELECT':
+                        self._select(event.state)
+
 
     @synchronized_with_lock("lock")
     def __left_thumb_x(self, x_value):
@@ -217,6 +223,11 @@ class XboxController(object):
     def _start(self, value):
         self.start = True if value == 1 else False
 
+    @synchronized_with_lock("lock")
+    def _select(self, value):
+        self.select = True if value == 1 else False
+
+
     def _handle_x_axis_value(self, value):
         value = (value / XboxController.MAX_JOY_VAL) * self.scale
 
@@ -233,6 +244,9 @@ class XboxController(object):
 
 
 if __name__ == '__main__':
-    joy = XboxController(scale=1, dead_zone=0.2)
+    joy = XboxController(scale=1, dead_zone=0.3)
+
     while True:
-        print(joy.get_controller_state())
+        print(joy.get_controller_state().__str__(), end='\r')
+        # sleep(1)
+
