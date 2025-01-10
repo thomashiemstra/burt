@@ -1,5 +1,6 @@
 import numpy as np
 
+from src.JoystickInterface import JoystickInterface
 from src.RobotController import RobotController
 from src.STservo_sdk import PortHandler, Sts
 from src.XboxController import XboxController
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     state = State()
     state.quat_orientation = np.array([1, 0, 0, 0])
 
-    command = Command()
+    command = Command(config)
 
     last_loop = time.time()
 
@@ -47,45 +48,24 @@ if __name__ == '__main__':
 
     robot = RobotController(packetHandler)
 
-    # xbox_controller = XboxController(dead_zone=30, scale=100)
+    xboxController = XboxController(scale=1, dead_zone=0.2)
+    joystick_interface = JoystickInterface(config, xboxController)
 
-    steps = 5000
+    while True:
+        print("Waiting for start to activate robot.")
+        while True:
+            command = joystick_interface.get_command(state)
+            if command.activate_event == 1:
+                break
+            time.sleep(0.1)
+        print("Robot activated.")
 
-    res = np.zeros((steps, 3))
+        while True:
+            now = time.time()
+            if now - last_loop < config.dt:
+                continue
+            last_loop = time.time()
 
-    state.behavior_state = BehaviorState.INSTALL
-    controller.run(state, command)
-    robot.set_actuator_positions(state.joint_angles)
-
-    # state.behavior_state = BehaviorState.REST
-    # controller.run(state, command)
-    # robot.set_actuator_positions(state.joint_angles)
-    #
-    # command.trot_event = True
-    #
-    # time.sleep(1)
-    #
-    # while 1:
-    #     now = time.time()
-    #     if now - last_loop < config.dt:
-    #         continue
-    #     last_loop = time.time()
-    #     # time.sleep(config.dt)
-    #
-    #     command.horizontal_velocity = np.array([0.05,0])
-    #
-    #     controller.run(state, command)
-    #
-    #     command.trot_event = False
-    #     robot.set_actuator_positions(state.joint_angles)
-
-
-
-
-    # ax = plt.axes(projection='3d')
-    # ax.plot(res[:, 0], res[:, 1], res[:, 2], 'g')
-    # ax.set_xlabel('$X$', fontsize=20)
-    # ax.set_ylabel('$Y$', fontsize=20)
-
-
-    # plt.show()
+            command = joystick_interface.get_command(state)
+            controller.run(state, command)
+            robot.set_actuator_positions(state.joint_angles)
