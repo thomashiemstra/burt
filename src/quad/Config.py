@@ -2,13 +2,12 @@ import numpy as np
 from enum import Enum
 
 
-
 class Configuration:
     def __init__(self):
                 #################### COMMANDS ####################
-        self.max_x_velocity = 0.4
-        self.max_y_velocity = 0.3
-        self.max_yaw_rate = 2.0
+        self.max_x_velocity = 0.2
+        self.max_y_velocity = 0.1
+        self.max_yaw_rate = 1.0
         self.max_pitch = 30.0 * np.pi / 180.0
         
         #################### MOVEMENT PARAMS ####################
@@ -21,11 +20,6 @@ class Configuration:
         self.yaw_time_constant = 0.3
         self.max_stance_yaw = 1.2
         self.max_stance_yaw_rate = 2.0
-
-        #################### STANCE ####################
-        self.delta_x = 0.09
-        self.delta_y = 0.09
-        self.default_z_ref = -0.16
 
         #################### SWING ######################
         self.z_clearance = 0.07
@@ -43,17 +37,18 @@ class Configuration:
             [[1, 1, 1, 0], [1, 0, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]
         )
         self.overlap_time = (
-            0.1 # duration of the phase where all four feet are on the ground
+            0.2 # duration of the phase where all four feet are on the ground
         )
         self.swing_time = (
-            0.15  # duration of the phase when only two feet are on the ground
+            0.1 # duration of the phase when only two feet are on the ground
         )
 
         ######################## GEOMETRY ######################
-        self.LEG_FB = 0.11  # front-back distance from center line to leg axis
+        self.LEG_FB = 0.09  # front-back distance from center line to leg axis
         self.LEG_LR = 0.06 # left-right distance from center line to leg plane
-        self.LEG_L2 = 0.11
+        self.LEG_L2 = 0.074
         self.LEG_L1 = 0.10
+        self.FOOT_RADIUS = 0.026
         self.ABDUCTION_OFFSET = 0.03  # distance from abduction axis to leg
 
         self.LEG_ORIGINS = np.array(
@@ -73,23 +68,32 @@ class Configuration:
             ]
         )
 
+        #################### STANCE ####################
+        self.delta_x = 0.10
+        self.x_shift = 0.04
+        self.delta_y = 0.01
+        self.default_z_ref = -0.16
+
     @property
     def default_stance(self):
+        y_offset = self.LEG_LR + self.ABDUCTION_OFFSET + self.delta_y
         return np.array(
             [
-                [self.delta_x,  self.delta_x, -self.delta_x, -self.delta_x],
-                [-self.delta_y, self.delta_y, -self.delta_y,  self.delta_y],
+                [self.delta_x + self.x_shift,  self.delta_x + self.x_shift, -self.delta_x + self.x_shift, -self.delta_x + self.x_shift],
+                [-y_offset, y_offset, -y_offset,  y_offset],
                 [0, 0, 0, 0],
             ]
         )
 
     @property
     def install_stance(self):
+        z_height = -(self.LEG_L2 + self.FOOT_RADIUS)
+        y_offset = self.LEG_LR + self.ABDUCTION_OFFSET
         return np.array(
             [
                 [self.LEG_FB - self.LEG_L1, self.LEG_FB - self.LEG_L1, -(self.LEG_FB + self.LEG_L1), -(self.LEG_FB + self.LEG_L1)],
-                [-self.delta_y, self.delta_y, -self.delta_y, self.delta_y],
-                [-self.LEG_L2, -self.LEG_L2, -self.LEG_L2, -self.LEG_L2],
+                [-y_offset, y_offset, -y_offset, y_offset],
+                [z_height, z_height, z_height, z_height],
             ]
         )
 
