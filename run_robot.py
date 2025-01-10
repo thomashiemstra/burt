@@ -1,4 +1,5 @@
 import numpy as np
+import tkinter as tk
 
 from src.JoystickInterface import JoystickInterface
 from src.RobotController import RobotController
@@ -9,6 +10,7 @@ from src.quad.Config import Configuration
 from src.quad.Controller import Controller
 from src.quad.Kinematics import four_legs_inverse_kinematics
 from src.quad.State import State, BehaviorState
+from src.ConfigEditor import ConfigEditor
 import time
 
 if __name__ == '__main__':
@@ -50,6 +52,15 @@ if __name__ == '__main__':
     xboxController = XboxController(scale=1, dead_zone=0.2)
     joystick_interface = JoystickInterface(config, xboxController, enable_install=True)
 
+    root = tk.Tk()
+    root.geometry('400x500')
+    # root.resizable(False, False)
+    root.title('Slider Demo')
+
+    def change_x(val):
+        config.swing_time = val
+    test = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time')
+    test.change_val = change_x
 
     # while True:
     #     print("Waiting for start to activate robot.")
@@ -70,3 +81,4 @@ if __name__ == '__main__':
         command = joystick_interface.get_command(state, config)
         controller.run(state, command)
         robot.set_actuator_positions(state.joint_angles)
+        root.update()

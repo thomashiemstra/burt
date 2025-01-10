@@ -5,9 +5,9 @@ from enum import Enum
 class Configuration:
     def __init__(self):
                 #################### COMMANDS ####################
-        self.max_x_velocity = 0.15
+        self.max_x_velocity = 0.14
         self.max_y_velocity = 0.1
-        self.max_yaw_rate = 1.0
+        self.max_yaw_rate = 0.8
         self.max_pitch = 30.0 * np.pi / 180.0
         
         #################### MOVEMENT PARAMS ####################
@@ -70,9 +70,9 @@ class Configuration:
         )
 
         #################### STANCE ####################
-        self.delta_x = 0.10
+        self.delta_x = 0.12
         self.x_shift = 0.02
-        self.delta_y = 0.01
+        self.delta_y = 0.00
         self.default_z_ref = -0.15
 
     @property

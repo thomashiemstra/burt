@@ -1,4 +1,6 @@
 import inspect
+from threading import Thread
+from time import sleep
 
 import pybullet as p
 import os
@@ -71,4 +73,7 @@ if __name__ == '__main__':
     for joint_index in range(number_of_joints):
         Slider(root, body_id, joint_index)
 
-    root.mainloop()
+    while True:
+        root.update()
+
+    # root.mainloop()
