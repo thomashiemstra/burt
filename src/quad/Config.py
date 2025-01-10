@@ -22,7 +22,7 @@ class Configuration:
         self.max_stance_yaw_rate = 2.0
 
         #################### SWING ######################
-        self.z_clearance = 0.07
+        self.z_clearance = 0.1
         self.alpha = (
             0.5  # Ratio between touchdown distance and total horizontal stance movement
         )
@@ -31,16 +31,16 @@ class Configuration:
         )
 
         #################### GAIT #######################
-        self.dt = 0.01
+        self.dt = 0.005
         self.num_phases = 4
         self.contact_phases = np.array(
             [[1, 1, 1, 0], [1, 0, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]
         )
         self.overlap_time = (
-            0.15  # duration of the phase where all four feet are on the ground
+            0.08 # duration of the phase where all four feet are on the ground
         )
         self.swing_time = (
-            0.1  # duration of the phase when only two feet are on the ground
+            0.05 # duration of the phase when only two feet are on the ground
         )
 
         ######################## GEOMETRY ######################
@@ -70,9 +70,9 @@ class Configuration:
 
         #################### STANCE ####################
         self.delta_x = 0.10
-        self.x_shift = 0.04
-        self.delta_y = 0.01
-        self.default_z_ref = -0.15
+        self.x_shift = 0.02
+        self.delta_y = 0.00
+        self.default_z_ref = -0.16
 
     @property
     def default_stance(self):

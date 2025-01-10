@@ -12,7 +12,7 @@ MIN_POSITION = 0
 MAX_POSITION = 4096
 COMM_SUCCESS = 0
 
-OFFSETS = [-20, 70, 17, 71, -84, -5, 0, 8, 1, -18, -4, -30]
+OFFSETS = [-5, 60, 39, 2, -74, 0, 12, 19, 6, -21, 0, -50]
 
 
 class Servo:

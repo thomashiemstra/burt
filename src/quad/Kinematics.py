@@ -22,9 +22,11 @@ def leg_explicit_inverse_kinematics(r_body_foot, leg_index, config):
     (x, y, z) = r_body_foot
     z = z + config.FOOT_RADIUS
     # print("x: {}, y: {}, z: {}".format(x,y,z))
-
     # Distance from the leg origin to the foot, projected into the y-z plane
     R_body_foot_yz = (y ** 2 + z ** 2) ** 0.5
+
+    if R_body_foot_yz < config.ABDUCTION_OFFSET:
+        print("problem y: {} z: {} R_body_foot_yz: {}".format(y, z, R_body_foot_yz))
 
     # Distance from the leg's forward/back point of rotation to the foot
     R_hip_foot_yz = (R_body_foot_yz ** 2 - config.ABDUCTION_OFFSET ** 2) ** 0.5

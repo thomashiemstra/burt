@@ -8,7 +8,7 @@ from src.quad.Command import Command
 from src.quad.Config import Configuration
 from src.quad.Controller import Controller
 from src.quad.Kinematics import four_legs_inverse_kinematics
-from src.quad.State import State
+from src.quad.State import State, BehaviorState
 import time
 
 if __name__ == '__main__':
@@ -48,23 +48,25 @@ if __name__ == '__main__':
     robot = RobotController(packetHandler)
 
     xboxController = XboxController(scale=1, dead_zone=0.2)
-    joystick_interface = JoystickInterface(config, xboxController)
+    joystick_interface = JoystickInterface(config, xboxController, enable_install=True)
 
+    delay_factor = 1.5
+    # while True:
+    #     print("Waiting for start to activate robot.")
+    #     while True:
+    #         command = joystick_interface.get_command(state, config)
+    #         if command.activate_event:
+    #             break
+    #         time.sleep(0.1)
+    #     print("Robot activated.")
+
+    state.behavior_state = BehaviorState.REST
     while True:
-        print("Waiting for start to activate robot.")
-        while True:
-            command = joystick_interface.get_command(state, config)
-            if command.activate_event == 1:
-                break
-            time.sleep(0.1)
-        print("Robot activated.")
+        now = time.time()
+        if now - last_loop < config.dt*delay_factor:
+            continue
+        last_loop = time.time()
 
-        while True:
-            now = time.time()
-            if now - last_loop < config.dt:
-                continue
-            last_loop = time.time()
-
-            command = joystick_interface.get_command(state, config)
-            controller.run(state, command)
-            robot.set_actuator_positions(state.joint_angles)
+        command = joystick_interface.get_command(state, config)
+        controller.run(state, command)
+        robot.set_actuator_positions(state.joint_angles)
