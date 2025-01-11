@@ -1,8 +1,8 @@
 from time import sleep
 
-from inputs import get_gamepad, UnpluggedError
 import math
 import threading
+from inputs import get_gamepad, UnpluggedError
 
 from src.Util import auto_str, synchronized_with_lock, is_windows
 
@@ -41,12 +41,7 @@ class XboxController(object):
                  scale=1,
                  check_controller_present=False):
 
-        self.dev = None
-
-        if is_windows():
-            self.check_controller_windows()
-        else:
-            self.dev = self.check_controller_linux()
+        self.dev = self.controller_startup()
 
         self.lower_dead_zone = dead_zone * -1
         self.upper_dead_zone = dead_zone
@@ -82,13 +77,28 @@ class XboxController(object):
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
 
+    def controller_startup(self):
+        if is_windows():
+            self.check_controller_windows()
+            return
+
+        res = None
+        while True:
+            try:
+                res = self.check_controller_linux()
+            except RuntimeError:
+                print("no controller found, retrying")
+            if res is not None:
+                break
+            sleep(1)
+        return res
+
     @staticmethod
     def check_controller_windows():
-        print("press any button to start")
+        from inputs import get_gamepad
         try:
             get_gamepad()
         except UnpluggedError:
-            print("no gamepad found exiting application")
             raise
 
     @staticmethod
@@ -103,7 +113,6 @@ class XboxController(object):
                 break
 
         if dev is None:
-            print("no controller found")
             raise UnpluggedError()
         return dev
 
@@ -285,7 +294,6 @@ class XboxController(object):
     def _select(self, value):
         self.select = True if value == 1 else False
 
-
     def _handle_x_axis_value(self, value):
         value = (value / XboxController.MAX_JOY_VAL) * self.scale
 
@@ -307,4 +315,3 @@ if __name__ == '__main__':
     while True:
         print(joy.get_controller_state().__str__())
         sleep(0.1)
-
