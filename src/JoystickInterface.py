@@ -27,11 +27,6 @@ class JoystickInterface:
         self.controller = controller
         self.enable_install = enable_install
         self.previous_height = config.default_z_ref
-        self.previous_delta_x = config.delta_x
-        self.previous_delta_y = config.delta_y
-        self.previous_x_shift = config.x_shift
-        self.previous_overlap_time = config.overlap_time
-        self.previous_swing_time = config.swing_time
 
     def get_command(self, state, config):
         controller_state = cast(ControllerState, self.controller.get_controller_state())
@@ -46,7 +41,7 @@ class JoystickInterface:
         activate_toggle = controller_state.start
         command.activate_event = (activate_toggle == 1 and self.previous_activate_toggle == 0)
 
-        install_toggle = controller_state.select
+        install_toggle = controller_state.b
         command.install_event = (install_toggle == 1 and self.previous_install_toggle == 0) and self.enable_install
 
         # Update previous values for toggles and state
@@ -79,36 +74,6 @@ class JoystickInterface:
         if command.height != self.previous_height:
             print("new height:" + str(command.height))
         self.previous_height = command.height
-
-        pad_x = self._get_pad_x_direction(controller_state)
-        config.delta_y = np.clip(config.delta_y + 0.0005*pad_x, 0, 0.5)
-        if config.delta_y != self.previous_delta_y:
-            print("new delta y:" + str(config.delta_y))
-        self.previous_delta_y = config.delta_y
-
-        pad_y = self._get_pad_y_direction(controller_state)
-        config.delta_x = config.delta_x + 0.001 * pad_y
-        if config.delta_x != self.previous_delta_x:
-            print("new delta x:" + str(config.delta_x))
-        self.previous_delta_x = config.delta_x
-
-        button_y = self._get_buttons_y_direction(controller_state)
-        config.x_shift = config.x_shift + 0.001 * button_y
-        if config.x_shift != self.previous_x_shift:
-            print("new x shift:" + str(config.x_shift))
-        self.previous_x_shift = config.x_shift
-
-        bumper_direction = self._get_bumper_direction(controller_state)
-        config.overlap_time = config.overlap_time + 0.0001*bumper_direction
-        if config.overlap_time != self.previous_overlap_time:
-            print("new overlap time:" + str(config.overlap_time))
-        self.previous_overlap_time = config.overlap_time
-
-        button_x = self._get_buttons_x_direction(controller_state)
-        config.swing_time = config.swing_time + 0.0001*button_x
-        if config.swing_time != self.previous_swing_time:
-            print("new swing time:" + str(config.swing_time))
-        self.previous_swing_time = config.swing_time
 
         return command
 
