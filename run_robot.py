@@ -54,28 +54,20 @@ if __name__ == '__main__':
 
     root = tk.Tk()
     root.geometry('500x500')
-    # root.resizable(False, False)
-    root.title('Slider Demo')
+    root.title('Config editor')
 
     row_index = 0
 
-
     def change(val):
         config.swing_time = val
-
-
-    test = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time', row=row_index)
-    test.change_val = change
+    editor = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time', row=row_index)
+    editor.change_val = change
     row_index += 1
-
 
     def change(val):
         config.overlap_time = val
-
-
-    test = ConfigEditor(root, config.overlap_time, config.overlap_time, config.overlap_time, 'overlap time',
-                        row=row_index)
-    test.change_val = change
+    editor = ConfigEditor(root, config.overlap_time, config.overlap_time, config.overlap_time, 'overlap time', row=row_index)
+    editor.change_val = change
     row_index += 1
 
 
@@ -85,7 +77,7 @@ if __name__ == '__main__':
               text="dump config",
               anchor="center",
               command=button_clicked
-              ).grid(row=row_index, column=1)
+              ).grid(row=row_index, column=2)
 
     # while True:
     #     print("Waiting for start to activate robot.")
