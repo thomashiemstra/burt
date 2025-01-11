@@ -20,10 +20,13 @@ def leg_explicit_inverse_kinematics(r_body_foot, leg_index, config):
         Array of corresponding joint angles.
     """
     (x, y, z) = r_body_foot
-    z = z + config.FOOT_RADIUS
-    # print("x: {}, y: {}, z: {}".format(x,y,z))
+
+    # z = z + config.FOOT_RADIUS
+    z = np.clip(z + config.FOOT_RADIUS, -1, -config.ABDUCTION_OFFSET*1.05)
+
     # Distance from the leg origin to the foot, projected into the y-z plane
     R_body_foot_yz = (y ** 2 + z ** 2) ** 0.5
+
 
     if R_body_foot_yz < config.ABDUCTION_OFFSET:
         print("problem y: {} z: {} R_body_foot_yz: {}".format(y, z, R_body_foot_yz))
