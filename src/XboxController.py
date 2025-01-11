@@ -1,4 +1,4 @@
-from inputs import get_gamepad
+from inputs import get_gamepad, UnpluggedError
 import math
 import threading
 
@@ -37,8 +37,10 @@ class XboxController(object):
     def __init__(self,
                  dead_zone=30.0,
                  scale=1,
-                 invert_yaxis=False):
-        # get_gamepad()
+                 invert_yaxis=False,
+                 check_controller_present=False):
+        if check_controller_present:
+            self.check_controller()
         self.lower_dead_zone = dead_zone * -1
         self.upper_dead_zone = dead_zone
 
@@ -68,6 +70,16 @@ class XboxController(object):
         self._monitor_thread = threading.Thread(target=self._monitor_controller, args=())
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
+
+    @staticmethod
+    def check_controller():
+        print("press any button to start")
+        try:
+            get_gamepad()
+        except UnpluggedError:
+            print("no gamepad found exiting application")
+            raise
+
 
     @synchronized_with_lock("lock")
     def stop(self):
