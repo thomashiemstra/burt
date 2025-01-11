@@ -99,11 +99,11 @@ class XboxController(object):
         # Find first EV_FF capable event device (that we have permissions to use).
         for name in util.list_devices():
             dev = InputDevice(name)
-            if ecodes.EV_FF in dev.capabilities():
+            if dev.name == 'Xbox Wireless Controller':
                 break
 
         if dev is None:
-            print("Sorry, no FF capable device found")
+            print("no controller found")
             raise UnpluggedError()
         return dev
 

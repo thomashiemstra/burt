@@ -16,6 +16,7 @@ if __name__ == '__main__':
     robot = setup_robot_controller(config)
     xboxController = XboxController(scale=1, dead_zone=0.2)
     joystick_interface = JoystickInterface(config, xboxController)
+    print("finished setup")
 
     # root = setup_editor(config)
 
