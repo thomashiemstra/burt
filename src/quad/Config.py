@@ -7,13 +7,14 @@ from src.Util import auto_str_newline
 class Configuration:
     def __init__(self):
         #################### CONNECTION ####################
-        self.com_port = 'COM6'
+        self.windows_com_port = 'COM6'
+        self.linux_com_port = '/dev/ttyUSB0'
         self.baud_rate = 1000000
 
         #################### COMMANDS ####################
-        self.max_x_velocity = 0.14
+        self.max_x_velocity = 0.2
         self.max_y_velocity = 0.1
-        self.max_yaw_rate = 0.8
+        self.max_yaw_rate = 0.5
         self.max_pitch = 30.0 * np.pi / 180.0
         
         #################### MOVEMENT PARAMS ####################
@@ -28,7 +29,7 @@ class Configuration:
         self.max_stance_yaw_rate = 2.0
 
         #################### SWING ######################
-        self.z_clearance = 0.1
+        self.z_clearance = 0.09
         self.alpha = (
             0.5  # Ratio between touchdown distance and total horizontal stance movement
         )
@@ -37,20 +38,21 @@ class Configuration:
         )
 
         #################### GAIT #######################
-        self.delay_factor = 1.3
-        self.dt = 0.005
+        self.delay_factor = 1.15
+        self.dt = 0.01
         self.num_phases = 4
         self.contact_phases = np.array(
             [[1, 1, 1, 0], [1, 0, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]
         )
         self.overlap_time = (
-            0.12 # duration of the phase where all four feet are on the ground
+            0.19 # duration of the phase where all four feet are on the ground
         )
         self.swing_time = (
-            0.05 # duration of the phase when only two feet are on the ground
+            0.1 # duration of the phase when only two feet are on the ground
         )
 
         ######################## GEOMETRY ######################
+        self.offsets = [-7, 71, 23, 1, -77, -6, 10, 18, 30, -25, -6, -49]
         self.LEG_FB = 0.09  # front-back distance from center line to leg axis
         self.LEG_LR = 0.06 # left-right distance from center line to leg plane
         self.LEG_L2 = 0.074
@@ -78,8 +80,8 @@ class Configuration:
         #################### STANCE ####################
         self.delta_x = 0.12
         self.x_shift = 0.02
-        self.delta_y = 0.00
-        self.default_z_ref = -0.15
+        self.delta_y = 0.011
+        self.default_z_ref = -0.16
 
     @property
     def default_stance(self):
