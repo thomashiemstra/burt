@@ -1,4 +1,5 @@
 import functools
+import os
 
 
 def auto_str(cls):
@@ -32,3 +33,7 @@ def synchronized_with_lock(lock_name):
         return synced_method
 
     return decorator
+
+
+def is_windows():
+    return os.name == 'nt'

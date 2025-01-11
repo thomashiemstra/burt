@@ -2,7 +2,7 @@ from inputs import get_gamepad, UnpluggedError
 import math
 import threading
 
-from src.Util import auto_str, synchronized_with_lock
+from src.Util import auto_str, synchronized_with_lock, is_windows
 
 
 @auto_str
@@ -39,8 +39,14 @@ class XboxController(object):
                  scale=1,
                  invert_yaxis=False,
                  check_controller_present=False):
+
+        self.dev = None
         if check_controller_present:
-            self.check_controller()
+            if is_windows():
+                self.check_controller_windows()
+            else:
+                self.dev = self.check_controller_linux()
+
         self.lower_dead_zone = dead_zone * -1
         self.upper_dead_zone = dead_zone
 
@@ -67,12 +73,15 @@ class XboxController(object):
         self.pad_left = False
         self.pad_right = False
 
-        self._monitor_thread = threading.Thread(target=self._monitor_controller, args=())
+        if is_windows():
+            self._monitor_thread = threading.Thread(target=self._monitor_controller_windows, args=())
+        else:
+            self._monitor_thread = threading.Thread(target=self._monitor_controller_linux(), args=())
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
 
     @staticmethod
-    def check_controller():
+    def check_controller_windows():
         print("press any button to start")
         try:
             get_gamepad()
@@ -80,6 +89,21 @@ class XboxController(object):
             print("no gamepad found exiting application")
             raise
 
+    @staticmethod
+    def check_controller_linux():
+        from evdev import ecodes, InputDevice, ff, util
+        dev = None
+
+        # Find first EV_FF capable event device (that we have permissions to use).
+        for name in util.list_devices():
+            dev = InputDevice(name)
+            if ecodes.EV_FF in dev.capabilities():
+                break
+
+        if dev is None:
+            print("Sorry, no FF capable device found")
+            raise UnpluggedError()
+        return dev
 
     @synchronized_with_lock("lock")
     def stop(self):
@@ -105,7 +129,7 @@ class XboxController(object):
             self.pad_up, self.pad_down, self.pad_left, self.pad_right)
         return state
 
-    def _monitor_controller(self):
+    def _monitor_controller_windows(self):
         while True:
             events = get_gamepad()
             for event in events:
@@ -145,6 +169,45 @@ class XboxController(object):
                     case 'BTN_SELECT':
                         self._select(event.state)
 
+    def _monitor_controller_linux(self):
+        while True:
+            events = self.dev.read_loop()
+            for event in events:
+                if event.type not in [1, 3]:
+                    continue
+                match event.code:
+                    case 1:
+                        self.__left_thumb_y(event.value)
+                    case 0:
+                        self.__left_thumb_x(event.value)
+                    case 34:
+                        self.__right_thumb_y(event.value)
+                    case 3:
+                        self.__right_thumb_x(event.value)
+                    case 2:
+                        self._left_trigger(event.value)
+                    case 5:
+                        self._right_trigger(event.value)
+                    case 310:
+                        self.___left_bumper(event.value)
+                    case 311:
+                        self.__right_bumper(event.value)
+                    case 304:
+                        self.__a(event.value)
+                    case 308:
+                        self.__y(event.value)
+                    case 307:
+                        self.__x(event.value)
+                    case 305:
+                        self.__b(event.value)
+                    case 'BTN_START':
+                        self._start(event.value)
+                    case 16:
+                        self._pad_left_right(event.value)
+                    case 17:
+                        self._pad_up_down(event.value)
+                    case 'BTN_SELECT':
+                        self._select(event.value)
 
     @synchronized_with_lock("lock")
     def __left_thumb_x(self, x_value):
@@ -237,7 +300,7 @@ class XboxController(object):
 
 
 if __name__ == '__main__':
-    joy = XboxController(scale=1, dead_zone=0.3)
+    joy = XboxController(scale=1, dead_zone=0.3, check_controller_present=True)
 
     while True:
         print(joy.get_controller_state().__str__())

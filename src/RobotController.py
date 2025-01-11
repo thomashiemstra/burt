@@ -5,6 +5,8 @@ import numpy as np
 from numpy import pi
 from typing import cast
 
+from src.Util import is_windows
+
 STS_MAXIMUM_POSITION_VALUE = 4095
 STS_MOVING_SPEED = 2400  # STServo moving speed
 STS_MOVING_ACC = 50
@@ -99,7 +101,4 @@ def setup_robot_controller(config):
 
 
 def get_port(config):
-    if os.name == 'nt':
-        return config.windows_com_port
-    else:
-        return config.linux_com_port
+    return config.windows_com_port if is_windows() else config.linux_com_port
