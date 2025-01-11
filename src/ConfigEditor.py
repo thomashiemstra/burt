@@ -4,7 +4,7 @@ from tkinter import ttk
 
 class ConfigEditor(object):
 
-    def __init__(self, root, config_val, upper, lower, name='unknown', row=0) -> None:
+    def __init__(self, root, config_val, lower, upper, name='unknown', row=0) -> None:
         self.root = root
         self.row = row
         self.name = name
@@ -39,8 +39,6 @@ class ConfigEditor(object):
         )
 
     def _slider_changed(self, event):
-        new_val = self._current_value.get()
-        print(self.name + ": " + str(new_val))
         self.change_val(self._current_value.get())
         self.label_text.set(self._label_text())
 
@@ -63,13 +61,55 @@ def setup_editor(config):
 
     def change(val):
         config.swing_time = val
-    editor = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time', row=row_index)
+    editor = ConfigEditor(root, config.swing_time, config.swing_time*0.9, config.swing_time*2, 'swing time', row=row_index)
     editor.change_val = change
     row_index += 1
 
     def change(val):
         config.overlap_time = val
-    editor = ConfigEditor(root, config.overlap_time, config.overlap_time, config.overlap_time, 'overlap time', row=row_index)
+    editor = ConfigEditor(root, config.overlap_time, config.overlap_time*0.9, config.overlap_time*2, 'overlap time', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.delay_factor = val
+    editor = ConfigEditor(root, config.delay_factor, config.delay_factor*0.9, config.delay_factor*2, 'delay factor', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.alpha = val
+    editor = ConfigEditor(root, config.alpha, config.alpha*0.9, config.alpha*2, 'alpha', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.beta = val
+    editor = ConfigEditor(root, config.beta, config.beta*0.9, config.beta*2, 'beta', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.z_clearance = val
+    editor = ConfigEditor(root, config.z_clearance, config.z_clearance*0.9, config.z_clearance*2, 'z_clearance', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.delta_x = val
+    editor = ConfigEditor(root, config.delta_x, config.delta_x*0.9, config.delta_x*2, 'delta_x', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.x_shift = val
+    editor = ConfigEditor(root, config.x_shift, config.x_shift*0.9, config.x_shift*2, 'x_shift', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.delta_y = val
+    editor = ConfigEditor(root, config.delta_y, config.delta_y, 0.06, 'delta_y', row=row_index)
     editor.change_val = change
     row_index += 1
 
