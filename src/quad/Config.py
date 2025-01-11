@@ -8,7 +8,7 @@ class Configuration:
     def __init__(self):
         #################### CONNECTION ####################
         self.windows_com_port = 'COM6'
-        self.linux_com_port = '/dev/ttyUSB0'
+        self.linux_com_port = '/dev/ttyACM0'
         self.baud_rate = 1000000
 
         #################### COMMANDS ####################
