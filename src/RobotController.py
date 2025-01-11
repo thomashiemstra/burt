@@ -1,3 +1,5 @@
+import os
+
 from src.STservo_sdk import Sts, GroupSyncWrite, STS_GOAL_POSITION_L, PortHandler
 import numpy as np
 from numpy import pi
@@ -11,8 +13,6 @@ MAX_ANGLE = pi
 MIN_POSITION = 0
 MAX_POSITION = 4096
 COMM_SUCCESS = 0
-
-OFFSETS = [-5, 60, 39, 2, -74, 0, 12, 19, 6, -21, 0, -50]
 
 
 class Servo:
@@ -34,13 +34,13 @@ class Servo:
 
 class RobotController:
 
-    def __init__(self, packet_handler: Sts):
+    def __init__(self, packet_handler: Sts, config):
         self.packet_handler = packet_handler
         self.servo_mapping = np.array([[Servo(1, -pi, pi, 4095, 0), Servo(4, -pi, pi, 4095, 0), Servo(7, -pi, pi, 4095, 0), Servo(10, -pi, pi, 4095, 0)],
                                        [Servo(2, -pi, pi, 4095, 0), Servo(5, -pi, pi, 0, 4095), Servo(8, -pi, pi, 4095, 0), Servo(11, -pi, pi, 0, 4095)],
                                        [Servo(3, -pi, pi, 0, 4095), Servo(6, -pi, pi, 4095, 0), Servo(9, -pi, pi, 0, 4095), Servo(12, -pi, pi, 4095, 0)]])
 
-        for i, offset in enumerate(OFFSETS):
+        for i, offset in enumerate(config.offsets):
             self._get_servo_by_id(i+1).offset(offset)
 
         self.packet_handler.groupSyncWrite = GroupSyncWrite(self.packet_handler, STS_GOAL_POSITION_L, 2)
@@ -75,7 +75,8 @@ class RobotController:
 
 
 def setup_robot_controller(config):
-    portHandler = PortHandler(config.com_port)
+    port = get_port(config)
+    portHandler = PortHandler(port)
 
     packetHandler = Sts(portHandler)
 
@@ -94,4 +95,11 @@ def setup_robot_controller(config):
         print("Press any key to terminate...")
         quit()
 
-    return RobotController(packetHandler)
+    return RobotController(packetHandler, config)
+
+
+def get_port(config):
+    if os.name == 'nt':
+        return config.windows_com_port
+    else:
+        return config.linux_com_port
