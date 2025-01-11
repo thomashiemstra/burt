@@ -1,5 +1,6 @@
 import functools
 import os
+from functools import lru_cache
 
 
 def auto_str(cls):
@@ -35,5 +36,6 @@ def synchronized_with_lock(lock_name):
     return decorator
 
 
+@lru_cache(1)
 def is_windows():
     return os.name == 'nt'
