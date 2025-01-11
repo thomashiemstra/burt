@@ -1,3 +1,5 @@
+from time import sleep
+
 from inputs import get_gamepad, UnpluggedError
 import math
 import threading
@@ -37,21 +39,21 @@ class XboxController(object):
     def __init__(self,
                  dead_zone=30.0,
                  scale=1,
-                 invert_yaxis=False,
                  check_controller_present=False):
 
         self.dev = None
-        if check_controller_present:
-            if is_windows():
-                self.check_controller_windows()
-            else:
-                self.dev = self.check_controller_linux()
+
+        if is_windows():
+            self.check_controller_windows()
+        else:
+            self.dev = self.check_controller_linux()
 
         self.lower_dead_zone = dead_zone * -1
         self.upper_dead_zone = dead_zone
 
         self.scale = scale
-        self.invert_yaxis_val = -1 if invert_yaxis else 1
+
+        self.invert_yaxis_val = 1 if is_windows() else -1
         self.lock = threading.RLock()
 
         self.l_thumb_x = 0.0
@@ -76,7 +78,7 @@ class XboxController(object):
         if is_windows():
             self._monitor_thread = threading.Thread(target=self._monitor_controller_windows, args=())
         else:
-            self._monitor_thread = threading.Thread(target=self._monitor_controller_linux(), args=())
+            self._monitor_thread = threading.Thread(target=self._monitor_controller_linux, args=())
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
 
@@ -200,13 +202,13 @@ class XboxController(object):
                         self.__x(event.value)
                     case 305:
                         self.__b(event.value)
-                    case 'BTN_START':
+                    case 314:
                         self._start(event.value)
                     case 16:
                         self._pad_left_right(event.value)
                     case 17:
                         self._pad_up_down(event.value)
-                    case 'BTN_SELECT':
+                    case 315:
                         self._select(event.value)
 
     @synchronized_with_lock("lock")
@@ -304,5 +306,5 @@ if __name__ == '__main__':
 
     while True:
         print(joy.get_controller_state().__str__())
-        # sleep(1)
+        sleep(0.1)
 

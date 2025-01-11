@@ -15,9 +15,9 @@ if __name__ == '__main__':
     controller = Controller(config, four_legs_inverse_kinematics)
     robot = setup_robot_controller(config)
     xboxController = XboxController(scale=1, dead_zone=0.2)
-    joystick_interface = JoystickInterface(config, xboxController, enable_install=True)
+    joystick_interface = JoystickInterface(config, xboxController)
 
-    root = setup_editor(config)
+    # root = setup_editor(config)
 
     state = State(config)
     # while True:
@@ -40,4 +40,4 @@ if __name__ == '__main__':
         command = joystick_interface.get_command(state, config)
         controller.run(state, command)
         robot.set_actuator_positions(state.joint_angles)
-        root.update()
+        # root.update()
