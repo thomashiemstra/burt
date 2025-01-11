@@ -6,7 +6,11 @@ from src.Util import auto_str_newline
 @auto_str_newline
 class Configuration:
     def __init__(self):
-                #################### COMMANDS ####################
+        #################### CONNECTION ####################
+        self.com_port = 'COM6'
+        self.baud_rate = 1000000
+
+        #################### COMMANDS ####################
         self.max_x_velocity = 0.14
         self.max_y_velocity = 0.1
         self.max_yaw_rate = 0.8

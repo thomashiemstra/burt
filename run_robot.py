@@ -1,84 +1,25 @@
-import numpy as np
-import tkinter as tk
+import time
 
+from src.ConfigEditor import setup_editor
 from src.JoystickInterface import JoystickInterface
-from src.RobotController import RobotController
-from src.STservo_sdk import PortHandler, Sts
+from src.RobotController import setup_robot_controller
 from src.XboxController import XboxController
-from src.quad.Command import Command
 from src.quad.Config import Configuration
 from src.quad.Controller import Controller
 from src.quad.Kinematics import four_legs_inverse_kinematics
-from src.quad.State import State, BehaviorState
-from src.ConfigEditor import ConfigEditor
-import time
+from src.quad.State import State
 
 if __name__ == '__main__':
     config = Configuration()
 
-    controller = Controller(
-        config,
-        four_legs_inverse_kinematics,
-    )
-
-    state = State(config)
-    state.quat_orientation = np.array([1, 0, 0, 0])
-
-    command = Command(config)
-
-    last_loop = time.time()
-
-    portHandler = PortHandler('COM6')
-
-    packetHandler = Sts(portHandler)
-
-    if portHandler.openPort():
-        print("Succeeded to open the port")
-    else:
-        print("Failed to open the port")
-        print("Press any key to terminate...")
-        quit()
-
-    # Set port baudrate
-    if portHandler.setBaudRate(1000000):
-        print("Succeeded to change the baudrate")
-    else:
-        print("Failed to change the baudrate")
-        print("Press any key to terminate...")
-        quit()
-
-    robot = RobotController(packetHandler)
-
+    controller = Controller(config, four_legs_inverse_kinematics)
+    robot = setup_robot_controller(config)
     xboxController = XboxController(scale=1, dead_zone=0.2)
     joystick_interface = JoystickInterface(config, xboxController, enable_install=True)
 
-    root = tk.Tk()
-    root.geometry('500x500')
-    root.title('Config editor')
+    root = setup_editor(config)
 
-    row_index = 0
-
-    def change(val):
-        config.swing_time = val
-    editor = ConfigEditor(root, config.swing_time, config.swing_time, config.swing_time, 'swing time', row=row_index)
-    editor.change_val = change
-    row_index += 1
-
-    def change(val):
-        config.overlap_time = val
-    editor = ConfigEditor(root, config.overlap_time, config.overlap_time, config.overlap_time, 'overlap time', row=row_index)
-    editor.change_val = change
-    row_index += 1
-
-
-    def button_clicked():
-        print(config)
-    tk.Button(root,
-              text="dump config",
-              anchor="center",
-              command=button_clicked
-              ).grid(row=row_index, column=2)
-
+    state = State(config)
     # while True:
     #     print("Waiting for start to activate robot.")
     #     while True:
@@ -88,7 +29,8 @@ if __name__ == '__main__':
     #         time.sleep(0.1)
     #     print("Robot activated.")
 
-    state.behavior_state = BehaviorState.REST
+    last_loop = time.time()
+
     while True:
         now = time.time()
         if now - last_loop < config.dt * config.delay_factor:

@@ -18,6 +18,7 @@ class State:
         self.joint_angles = np.zeros((3, 4))
 
         self.behavior_state = BehaviorState.REST
+        self.quat_orientation = np.array([1, 0, 0, 0])
 
 
 class BehaviorState(Enum):

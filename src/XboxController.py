@@ -38,6 +38,7 @@ class XboxController(object):
                  dead_zone=30.0,
                  scale=1,
                  invert_yaxis=False):
+        # get_gamepad()
         self.lower_dead_zone = dead_zone * -1
         self.upper_dead_zone = dead_zone
 

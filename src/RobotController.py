@@ -1,4 +1,4 @@
-from src.STservo_sdk import Sts, GroupSyncWrite, STS_GOAL_POSITION_L
+from src.STservo_sdk import Sts, GroupSyncWrite, STS_GOAL_POSITION_L, PortHandler
 import numpy as np
 from numpy import pi
 from typing import cast
@@ -72,3 +72,26 @@ class RobotController:
 
         # Clear sync write parameter storage
         self.packet_handler.groupSyncWrite.clearParam()
+
+
+def setup_robot_controller(config):
+    portHandler = PortHandler(config.com_port)
+
+    packetHandler = Sts(portHandler)
+
+    if portHandler.openPort():
+        print("Succeeded to open the port")
+    else:
+        print("Failed to open the port")
+        print("Press any key to terminate...")
+        quit()
+
+    # Set port baudrate
+    if portHandler.setBaudRate(config.baud_rate):
+        print("Succeeded to change the baudrate")
+    else:
+        print("Failed to change the baudrate")
+        print("Press any key to terminate...")
+        quit()
+
+    return RobotController(packetHandler)
