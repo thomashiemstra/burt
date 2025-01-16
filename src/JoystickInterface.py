@@ -24,6 +24,8 @@ class JoystickInterface:
         self.previous_state = BehaviorState.REST
         self.previous_activate_toggle = 0
         self.previous_install_toggle = 0
+        self.previous_pad_right = 0
+        self.previous_pad_left = 0
         self.controller = controller
         self.enable_install = enable_install
         self.previous_height = config.default_z_ref
@@ -68,6 +70,17 @@ class JoystickInterface:
         #     self.config.pitch_time_constant,
         # )
         # command.pitch = state.pitch + message_dt * pitch_rate
+
+        pad_right = controller_state.pad_right
+        if pad_right and self.previous_pad_right == 0:
+            state.stance = state.stance.next()
+
+        pad_left = controller_state.pad_left
+        if pad_left and self.previous_pad_left == 0:
+            state.stance = state.stance.previous()
+
+        self.previous_pad_right = pad_right
+        self.previous_pad_left = pad_left
 
         height_movement = controller_state.lr_trigger
         command.height = state.height - 0.01 * self.config.z_speed * height_movement

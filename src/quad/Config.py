@@ -3,7 +3,7 @@ import numpy as np
 from src.Util import auto_str_newline
 
 
-@auto_str_newline
+# @auto_str_newline
 class Configuration:
     def __init__(self):
         #################### CONNECTION ####################
@@ -38,17 +38,17 @@ class Configuration:
         )
 
         #################### GAIT #######################
-        self.delay_factor = 1.15
+        self.delay_factor = 1.24
         self.dt = 0.01
         self.num_phases = 4
         self.contact_phases = np.array(
             [[1, 1, 1, 0], [1, 0, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]
         )
         self.overlap_time = (
-            0.19 # duration of the phase where all four feet are on the ground
+            0.1 # duration of the phase where all four feet are on the ground
         )
         self.swing_time = (
-            0.1 # duration of the phase when only two feet are on the ground
+            0.095 # duration of the phase when only two feet are on the ground
         )
 
         ######################## GEOMETRY ######################
@@ -78,10 +78,10 @@ class Configuration:
         )
 
         #################### STANCE ####################
-        self.delta_x = 0.12
+        self.delta_x = 0.15
         self.x_shift = 0.02
-        self.delta_y = 0.011
-        self.default_z_ref = -0.16
+        self.delta_y = 0.010
+        self.default_z_ref = -0.155
 
     @property
     def default_stance(self):
@@ -139,6 +139,9 @@ class Configuration:
         return 2 * self.overlap_ticks + 2 * self.swing_ticks
 
     def __str__(self):
-        return "wew"
+        return "max_x_velocity={}, max_y_velocity={}, max_yaw_rate={}, swing_time={}, overlap_time={}, delay_factor={}, alpha={}, beta={}, z_clearance={}, delta_x={}, x_shift={}, delta_y={}".format(
+            self.max_x_velocity, self.max_y_velocity, self.max_yaw_rate, self.swing_time, self.overlap_time, self.delay_factor, self.alpha, self.beta, self.z_clearance, self.delta_x, self.x_shift, self.delta_y)
+
+
 
 

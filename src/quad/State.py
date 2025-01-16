@@ -1,6 +1,8 @@
 import numpy as np
 from enum import Enum
 
+from src.StanceManager import Stance
+
 
 class State:
     def __init__(self, config):
@@ -19,6 +21,7 @@ class State:
 
         self.behavior_state = BehaviorState.REST
         self.quat_orientation = np.array([1, 0, 0, 0])
+        self.stance = Stance.SLOW
 
 
 class BehaviorState(Enum):

@@ -60,6 +60,24 @@ def setup_editor(config):
     row_index = 0
 
     def change(val):
+        config.max_x_velocity = val
+    editor = ConfigEditor(root, config.max_x_velocity, config.max_x_velocity*0.9, config.max_x_velocity*2, 'max_x_velocity', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.max_y_velocity = val
+    editor = ConfigEditor(root, config.max_y_velocity, config.max_y_velocity*0.9, config.max_y_velocity*2, 'max_y_velocity', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
+        config.max_yaw_rate = val
+    editor = ConfigEditor(root, config.max_yaw_rate, config.max_yaw_rate*0.9, config.max_yaw_rate*2, 'max_yaw_rate', row=row_index)
+    editor.change_val = change
+    row_index += 1
+
+    def change(val):
         config.swing_time = val
     editor = ConfigEditor(root, config.swing_time, config.swing_time*0.9, config.swing_time*2, 'swing time', row=row_index)
     editor.change_val = change
