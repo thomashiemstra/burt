@@ -1,6 +1,6 @@
 import time
 
-from src.ConfigEditor import setup_editor
+from src.ConfigEditor import setup_config_editor, setup_servo_editor
 from src.JoystickInterface import JoystickInterface
 from src.RobotController import setup_robot_controller
 from src.StanceManager import StanceManager
@@ -16,11 +16,13 @@ if __name__ == '__main__':
     controller = Controller(config, four_legs_inverse_kinematics)
     robot = setup_robot_controller(config)
     xboxController = XboxController(scale=1, dead_zone=0.2)
-    joystick_interface = JoystickInterface(config, xboxController)
+    joystick_interface = JoystickInterface(config, xboxController, enable_install=True)
     stance_manager = StanceManager()
     print("finished setup")
 
-    root = setup_editor(config)
+    # root = setup_config_editor(config)
+    servos = robot.get_servo_list()
+    root = setup_servo_editor(servos)
 
     state = State(config)
     previous_stance = state.stance

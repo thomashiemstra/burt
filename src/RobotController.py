@@ -25,13 +25,10 @@ class Servo:
         self.max_angle = max_angle
         self.min_pos = min_pos
         self.max_pos = max_pos
-        self._offset = 0
-
-    def offset(self, offset):
-        self._offset = offset
+        self.offset = 0
 
     def angle_to_position(self, angle):
-        return int(np.rint(np.interp(angle, [self.min_angle, self.max_angle], [self.min_pos, self.max_pos]))) + self._offset
+        return int(np.rint(np.interp(angle, [self.min_angle, self.max_angle], [self.min_pos, self.max_pos]))) + self.offset
 
 
 class RobotController:
@@ -43,7 +40,7 @@ class RobotController:
                                        [Servo(3, -pi, pi, 0, 4095), Servo(6, -pi, pi, 4095, 0), Servo(9, -pi, pi, 0, 4095), Servo(12, -pi, pi, 4095, 0)]])
 
         for i, offset in enumerate(config.offsets):
-            self._get_servo_by_id(i+1).offset(offset)
+            self._get_servo_by_id(i+1).offset = offset
 
         self.packet_handler.groupSyncWrite = GroupSyncWrite(self.packet_handler, STS_GOAL_POSITION_L, 2)
 
@@ -53,6 +50,12 @@ class RobotController:
                 servo = cast(Servo, self.servo_mapping[axis_index, leg_index])
                 if servo.id == servo_id:
                     return servo
+
+    def get_servo_list(self):
+        res = []
+        for i in range(1, 13):
+            res.append(self._get_servo_by_id(i))
+        return res
 
     def set_actuator_positions(self, joint_angles):
         self.packet_handler.groupSyncWrite.clearParam()
