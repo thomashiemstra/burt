@@ -57,8 +57,8 @@ class scscl(protocol_packet_handler):
         protocol_packet_handler.__init__(self, portHandler, 1)
         self.groupSyncWrite = GroupSyncWrite(self, SCSCL_GOAL_POSITION_L, 6)
 
-    def WritePos(self, scs_id, position, time, speed):
-        txpacket = [self.scs_lobyte(position), self.scs_hibyte(position), self.scs_lobyte(time), self.scs_hibyte(time), self.scs_lobyte(speed), self.scs_hibyte(speed)]
+    def WritePos(self, scs_id, position):
+        txpacket = [self.sts_lobyte(position), self.sts_hibyte(position), self.sts_lobyte(0), self.sts_hibyte(0), self.sts_lobyte(0), self.sts_hibyte(0)]
         return self.writeTxRx(scs_id, SCSCL_GOAL_POSITION_L, len(txpacket), txpacket)
 
     def ReadPos(self, scs_id):
@@ -67,24 +67,24 @@ class scscl(protocol_packet_handler):
 
     def ReadSpeed(self, scs_id):
         scs_present_speed, scs_comm_result, scs_error = self.read2ByteTxRx(scs_id, SCSCL_PRESENT_SPEED_L)
-        return self.scs_tohost(scs_present_speed, 15), scs_comm_result, scs_error
+        return self.sts_tohost(scs_present_speed, 15), scs_comm_result, scs_error
 
     def ReadPosSpeed(self, scs_id):
         scs_present_position_speed, scs_comm_result, scs_error = self.read4ByteTxRx(scs_id, SCSCL_PRESENT_POSITION_L)
-        scs_present_position = self.scs_loword(scs_present_position_speed)
-        scs_present_speed = self.scs_hiword(scs_present_position_speed)
-        return scs_present_position, self.scs_tohost(scs_present_speed, 15), scs_comm_result, scs_error
+        scs_present_position = self.sts_loword(scs_present_position_speed)
+        scs_present_speed = self.sts_hiword(scs_present_position_speed)
+        return scs_present_position, self.sts_tohost(scs_present_speed, 15), scs_comm_result, scs_error
 
     def ReadMoving(self, scs_id):
         moving, scs_comm_result, scs_error = self.read1ByteTxRx(scs_id, SCSCL_MOVING)
         return moving, scs_comm_result, scs_error
 
     def SyncWritePos(self, scs_id, position, time, speed):
-        txpacket = [self.scs_lobyte(position), self.scs_hibyte(position), self.scs_lobyte(time), self.scs_hibyte(time), self.scs_lobyte(speed), self.scs_hibyte(speed)]
+        txpacket = [self.sts_lobyte(position), self.sts_hibyte(position), self.sts_lobyte(time), self.sts_hibyte(time), self.sts_lobyte(speed), self.sts_hibyte(speed)]
         return self.groupSyncWrite.addParam(scs_id, txpacket)
 
     def RegWritePos(self, scs_id, position, time, speed):
-        txpacket = [self.scs_lobyte(position), self.scs_hibyte(position), self.scs_lobyte(time), self.scs_hibyte(time), self.scs_lobyte(speed), self.scs_hibyte(speed)]
+        txpacket = [self.sts_lobyte(position), self.sts_hibyte(position), self.sts_lobyte(time), self.sts_hibyte(time), self.sts_lobyte(speed), self.sts_hibyte(speed)]
         return self.regWriteTxRx(scs_id, SCSCL_GOAL_POSITION_L, len(txpacket), txpacket)
 
     def RegAction(self):
@@ -95,10 +95,14 @@ class scscl(protocol_packet_handler):
         return self.writeTxRx(scs_id, SCSCL_MIN_ANGLE_LIMIT_L, len(txpacket), txpacket)
 
     def WritePWM(self, scs_id, time):
-        return self.write2ByteTxRx(scs_id, SCSCL_GOAL_TIME_L, self.scs_toscs(time, 10))
+        return self.write2ByteTxRx(scs_id, SCSCL_GOAL_TIME_L, self.sts_toscs(time, 10))
 
     def LockEprom(self, scs_id):
         return self.write1ByteTxRx(scs_id, SCSCL_LOCK, 1)
 
     def unLockEprom(self, scs_id):
         return self.write1ByteTxRx(scs_id, SCSCL_LOCK, 0)
+
+    def setId(self, sts_id, new_id):
+        return self.write1ByteTxRx(sts_id, scs_id, new_id)
+

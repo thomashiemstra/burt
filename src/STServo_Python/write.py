@@ -13,13 +13,14 @@ sys.path.append("../..")
 from src.STservo_sdk import *                 # Uses STServo SDK library
 
 # Default setting
-STS_ID                      = 10              # STServo ID : 1
+STS_ID                      = 16              # STServo ID : 1
 BAUDRATE                    = 1000000           # STServo default baudrate : 1000000
-DEVICENAME                  = 'COM5'    # Check which port is being used on your controller
+DEVICENAME                  = ('COM6'
+                               '')    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 STS_MINIMUM_POSITION_VALUE  = 0           # STServo will rotate between this value
-STS_MAXIMUM_POSITION_VALUE  = 4095
-STS_MOVING_SPEED            = 44000        # STServo moving speed
+STS_MAXIMUM_POSITION_VALUE  = 512
+STS_MOVING_SPEED            = 1000        # STServo moving speed
 STS_MOVING_ACC              = 250         # STServo moving acc
 
 index = 0
@@ -32,7 +33,7 @@ portHandler = PortHandler(DEVICENAME)
 
 # Initialize PacketHandler instance
 # Get methods and members of Protocol
-packetHandler = Sts(portHandler)
+packetHandler = scscl(portHandler)
     
 # Open port
 if portHandler.openPort():
@@ -54,8 +55,9 @@ while 1:
     input("Press Enter to continue...")
 
     # Write STServo goal position/moving speed/moving acc
-    print("writing pos")
-    sts_comm_result, sts_error = packetHandler.WritePosEx(STS_ID, sts_goal_position[index], STS_MOVING_SPEED, STS_MOVING_ACC)
+    print("writing pos "  + str(sts_goal_position[index]))
+    sts_comm_result, sts_error = packetHandler.WritePos(STS_ID, sts_goal_position[index])
+    # sts_comm_result, sts_error = packetHandler.WritePos(STS_ID, sts_goal_position[index])
     if sts_comm_result != COMM_SUCCESS:
         print("%s" % packetHandler.getTxRxResult(sts_comm_result))
     if sts_error != 0:
