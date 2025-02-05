@@ -8,7 +8,7 @@ import numpy as np
 from transforms3d.euler import euler2mat, quat2euler
 
 
-class Controller:
+class QuadController:
     """Controller and planner object
     """
 
@@ -26,17 +26,6 @@ class Controller:
         self.gait_controller = GaitController(self.config)
         self.swing_controller = SwingController(self.config)
         self.stance_controller = StanceController(self.config)
-
-        self.trot_transition_mapping = {BehaviorState.REST: BehaviorState.TROT, BehaviorState.TROT: BehaviorState.REST, BehaviorState.HOP: BehaviorState.TROT, BehaviorState.FINISHHOP: BehaviorState.TROT}
-        self.activate_transition_mapping = {BehaviorState.DEACTIVATED: BehaviorState.REST, BehaviorState.REST: BehaviorState.DEACTIVATED}
-        self.install_transition_mapping = {BehaviorState.REST: BehaviorState.PRE_INSTALL, BehaviorState.TROT: BehaviorState.PRE_INSTALL,  BehaviorState.PRE_INSTALL: BehaviorState.INSTALL, BehaviorState.INSTALL: BehaviorState.REST}
-
-        self.trot_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST, BehaviorState.INSTALL: BehaviorState.REST})
-        self.trot_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
-        self.activate_transition_mapping.update({BehaviorState.PRE_INSTALL: BehaviorState.REST, BehaviorState.INSTALL: BehaviorState.REST})
-        self.activate_transition_mapping.update({BehaviorState.TROT: BehaviorState.DEACTIVATED})
-        self.install_transition_mapping.update({BehaviorState.DEACTIVATED : BehaviorState.DEACTIVATED})
-
 
     def step_gait(self, state, command):
         """Calculate the desired foot locations for the next timestep
@@ -66,29 +55,7 @@ class Controller:
             new_foot_locations[:, leg_index] = new_location
         return new_foot_locations, contact_modes
 
-
     def run(self, state, command):
-        """Steps the controller forward one timestep
-
-        Parameters
-        ----------
-        controller : Controller
-            Robot controller object.
-        """
-
-        ########## Update operating state based on command ######
-        if command.activate_event:
-            state.behavior_state = self.activate_transition_mapping[state.behavior_state]
-            print(state.behavior_state.__str__())
-        elif command.trot_event:
-            state.behavior_state = self.trot_transition_mapping[state.behavior_state]
-            print(state.behavior_state.__str__())
-        elif command.install_event:
-            state.behavior_state = self.install_transition_mapping[state.behavior_state]
-            if state.behavior_state == BehaviorState.PRE_INSTALL:
-                print("press select again to confirm install state")
-            print(state.behavior_state.__str__())
-
         if state.behavior_state == BehaviorState.TROT:
             state.foot_locations, contact_modes = self.step_gait(
                 state,
@@ -147,14 +114,21 @@ class Controller:
                 rotated_foot_locations, self.config
             )
 
-        elif state.behavior_state == BehaviorState.PRE_INSTALL:
-            pass
         elif state.behavior_state == BehaviorState.INSTALL:
             foot_locations = (
                     self.config.install_stance
             )
             state.joint_angles = self.inverse_kinematics(
                 foot_locations, self.config
+            )
+
+        elif state.behavior_state == BehaviorState.ARM:
+            state.foot_locations = (
+                    self.config.default_stance
+                    + np.array([0, 0, command.height])[:, np.newaxis]
+            )
+            state.joint_angles = self.inverse_kinematics(
+                state.foot_locations, self.config
             )
 
         state.ticks += 1

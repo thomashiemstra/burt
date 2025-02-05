@@ -123,6 +123,12 @@ class Sts(protocol_packet_handler):
     def unLockEprom(self, sts_id):
         return self.write1ByteTxRx(sts_id, STS_LOCK, 0)
 
+    def enable_torque(self, sts_id):
+        return self.write1ByteTxRx(sts_id, STS_TORQUE_ENABLE, 1)
+
+    def disable_torque(self, sts_id):
+        return self.write1ByteTxRx(sts_id, STS_TORQUE_ENABLE, 0)
+
     def setP(self, sts_id, value):
         return self.write1ByteTxRx(sts_id, STS_P_VALUE, value)
 

@@ -152,6 +152,8 @@ class ServoEditor(object):
 
         self.servo = servo
 
+        offset = self.servo.offset
+
         ttk.Label(root, text=self.name + ":").grid(row=row, column=0, pady=4, padx=4,sticky='we')
 
         self.label_text = tk.StringVar()
@@ -161,15 +163,15 @@ class ServoEditor(object):
 
         self.slider = ttk.Scale(
             root,
-            from_=-100,
-            to=100,
+            from_=offset - 50,
+            to=offset + 50,
             orient='horizontal',  # vertical
             command=self._slider_changed,
             variable=self._current_value,
-            length=300
+            length=1500
         )
 
-        self.slider.set(self.servo.offset)
+        self.slider.set(offset)
 
         self.slider.grid(
             column=1,
@@ -190,7 +192,7 @@ class ServoEditor(object):
 
 def setup_servo_editor(servos):
     root = tk.Tk()
-    root.geometry('600x500')
+    root.geometry('1600x500')
     root.title('Servo editor')
 
     row_index = 0

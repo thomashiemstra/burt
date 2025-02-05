@@ -52,7 +52,7 @@ class Configuration:
         )
 
         ######################## GEOMETRY ######################
-        self.offsets = [-7, 71, 23, 1, -77, -6, 10, 18, 30, -25, -6, -49]
+        self.offsets = [-17, 54, -21, 4, -81, -4, 8, -31, -42, -14, 48, 8]
         self.LEG_FB = 0.09  # front-back distance from center line to leg axis
         self.LEG_LR = 0.06 # left-right distance from center line to leg plane
         self.LEG_L2 = 0.074
@@ -82,6 +82,19 @@ class Configuration:
         self.x_shift = 0.02
         self.delta_y = 0.010
         self.default_z_ref = -0.155
+
+        #################### ROBOT ARM ####################
+        self.d1 = 0
+        self.a2 = 10
+        self.d4 = 10
+        self.d6 = 0
+        self.arm_default_x = 10
+        self.arm_default_z = 10
+        #                        [x, y, z, phi]
+        self.arm_rest_position = [7, 0, 7, -np.pi/2]
+        self.arm_active_position = [self.a2 + self.d6, 0, self.d4, 0]
+        self.activate_arm_speed = 500
+        self.activate_arm_time = 4
 
     @property
     def default_stance(self):

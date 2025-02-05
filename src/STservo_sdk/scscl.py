@@ -52,13 +52,15 @@ SCSCL_MOVING = 66
 SCSCL_PRESENT_CURRENT_L = 69
 SCSCL_PRESENT_CURRENT_H = 70
 
-class scscl(protocol_packet_handler):
+
+class Scscl(protocol_packet_handler):
+
     def __init__(self, portHandler):
         protocol_packet_handler.__init__(self, portHandler, 1)
         self.groupSyncWrite = GroupSyncWrite(self, SCSCL_GOAL_POSITION_L, 6)
 
-    def WritePos(self, scs_id, position):
-        txpacket = [self.sts_lobyte(position), self.sts_hibyte(position), self.sts_lobyte(0), self.sts_hibyte(0), self.sts_lobyte(0), self.sts_hibyte(0)]
+    def WritePos(self, scs_id, position, speed=0):
+        txpacket = [self.sts_lobyte(position), self.sts_hibyte(position), self.sts_lobyte(0), self.sts_hibyte(0), self.sts_lobyte(speed), self.sts_hibyte(speed)]
         return self.writeTxRx(scs_id, SCSCL_GOAL_POSITION_L, len(txpacket), txpacket)
 
     def ReadPos(self, scs_id):

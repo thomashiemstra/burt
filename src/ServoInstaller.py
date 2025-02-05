@@ -1,6 +1,6 @@
 from time import sleep
 
-from src.STservo_sdk import PortHandler, Sts, scscl
+from src.STservo_sdk import PortHandler, Sts, Scscl
 
 BAUDRATE = 1000000  # STServo default baudrate : 1000000
 DEVICENAME = 'COM6'
@@ -9,7 +9,7 @@ D = 32
 I = 0
 ACCELERATION = 254
 
-NEW_ID = 13
+NEW_ID = 14
 STS_MOVING_SPEED            = 0        # STServo moving speed
 STS_MOVING_ACC              = 0         # STServo moving acc
 
@@ -53,7 +53,7 @@ else:
     print("Press any key to terminate...")
     quit()
 
-old_id = get_servo_id()
+old_id = 1
 
 packetHandler.unLockEprom(old_id)
 

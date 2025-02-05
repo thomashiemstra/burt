@@ -38,9 +38,9 @@ class StanceManager(object):
 
     def __init__(self):
         self.configs = {
-            Stance.SLOW:   StanceConfig(max_x_velocity=0.2, max_y_velocity=0.1, max_yaw_rate=0.5, swing_time=0.1, overlap_time=0.1, delay_factor=1.24, alpha=0.5, beta=0.5, z_clearance=0.67, delta_x=0.09, x_shift=0.02, delta_y=0.0),
-            Stance.MEDIUM: StanceConfig(max_x_velocity=0.2, max_y_velocity=0.1, max_yaw_rate=0.5, swing_time=0.1, overlap_time=0.1, delay_factor=1.24, alpha=0.5, beta=0.5, z_clearance=0.67, delta_x=0.12, x_shift=0.02, delta_y=0.01),
-            Stance.FAST:   StanceConfig(max_x_velocity=0.2, max_y_velocity=0.1, max_yaw_rate=0.5, swing_time=0.1, overlap_time=0.1, delay_factor=1.24, alpha=0.5, beta=0.5, z_clearance=0.67, delta_x=0.15, x_shift=0.02, delta_y=0.03)
+            Stance.SLOW:   StanceConfig(max_x_velocity=0.15, max_y_velocity=0.1, max_yaw_rate=0.5, swing_time=0.11, overlap_time=0.12, delay_factor=1.6, alpha=0.5, beta=0.5, z_clearance=0.023, delta_x=0.1, x_shift=0.02, delta_y=0.005),
+            Stance.MEDIUM: StanceConfig(max_x_velocity=0.2, max_y_velocity=0.11, max_yaw_rate=0.7, swing_time=0.09, overlap_time=0.09, delay_factor=1.2, alpha=0.5, beta=0.5, z_clearance=0.074, delta_x=0.1, x_shift=0.02, delta_y=0.012),
+            Stance.FAST:   StanceConfig(max_x_velocity=0.25, max_y_velocity=0.11, max_yaw_rate=0.7, swing_time=0.09, overlap_time=0.09, delay_factor=1.2, alpha=0.5, beta=0.5, z_clearance=0.074, delta_x=0.1, x_shift=0.02, delta_y=0.012),
         }
 
     def apply_stance(self, stance, config):

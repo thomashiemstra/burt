@@ -13,13 +13,13 @@ sys.path.append("../..")
 from src.STservo_sdk import *                 # Uses STServo SDK library
 
 # Default setting
-STS_ID                      = 16              # STServo ID : 1
+STS_ID                      = 13              # STServo ID : 1
 BAUDRATE                    = 1000000           # STServo default baudrate : 1000000
 DEVICENAME                  = ('COM6'
                                '')    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 STS_MINIMUM_POSITION_VALUE  = 0           # STServo will rotate between this value
-STS_MAXIMUM_POSITION_VALUE  = 512
+STS_MAXIMUM_POSITION_VALUE  = 4095
 STS_MOVING_SPEED            = 1000        # STServo moving speed
 STS_MOVING_ACC              = 250         # STServo moving acc
 
@@ -33,7 +33,7 @@ portHandler = PortHandler(DEVICENAME)
 
 # Initialize PacketHandler instance
 # Get methods and members of Protocol
-packetHandler = scscl(portHandler)
+packetHandler = Sts(portHandler)
     
 # Open port
 if portHandler.openPort():

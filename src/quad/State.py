@@ -28,7 +28,5 @@ class BehaviorState(Enum):
     DEACTIVATED = -1
     REST = 0
     TROT = 1
-    HOP = 2
-    FINISHHOP = 3
-    INSTALL = 4
-    PRE_INSTALL = 5
+    ARM = 2
+    INSTALL = 3
