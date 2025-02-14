@@ -2,7 +2,8 @@ import numpy as np
 
 from src.StateCommand import StateCommand
 from src.XboxController import ControllerState
-from src.quad.QuadCommand import QuadCommand, RobotArmCommand
+from src.arm.RobotArmCommand import RobotArmCommand
+from src.quad.QuadCommand import QuadCommand
 from src.quad.State import BehaviorState
 from typing import cast
 
@@ -56,6 +57,7 @@ class JoystickInterface:
         self.previous_activate_toggle = activate_toggle
         self.previous_install_toggle = install_toggle
         self.previous_robot_arm_toggle = robot_arm_toggle
+        return command
 
     def get_quad_robot_command(self, state, config):
         self.controller_state = self._get_controller_state()

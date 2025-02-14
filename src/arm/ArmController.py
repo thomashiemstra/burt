@@ -17,8 +17,8 @@ class ArmController:
 
         # First find the position of the wrist
         # TODO sin cos stuff here
-        xc = x - self.config.d6 * cos(phi)
-        yc = y
+        xc = x
+        yc = y - self.config.d6 * cos(phi)
         zc = z - self.config.d6 * sin(phi)
 
         angles = np.zeros(4, dtype=np.float64)
@@ -35,10 +35,10 @@ class ArmController:
             d = 1
         angles[2] = arctan2(-sqrt(1 - d ** 2), d)
 
-        k1 = a2 + d4 * cos(angles[3])
-        k2 = d4 * sin(angles[3])
+        k1 = a2 + d4 * cos(angles[2])
+        k2 = d4 * sin(angles[2])
         # The positive square root is picked meaning elbow up.
         angles[1] = arctan2((zc - d1), sqrt(power(xc, 2) + power(yc, 2))) - arctan2(k2, k1)
 
-        angles[3] = phi
+        angles[3] = phi - (angles[1] + angles[2])
         return angles
