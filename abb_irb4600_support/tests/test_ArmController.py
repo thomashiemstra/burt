@@ -20,7 +20,6 @@ class TestArmController(TestCase):
         controller = ArmController(config)
 
         angles = controller.run(0, 15, 10, 0)
-        print(angles)
         self.assertAlmostEqual(pi / 2, angles[0], places=2, msg='got a wrong value for angle 1')
         self.assertAlmostEqual(pi / 2, angles[1], places=2, msg='got a wrong value for angle 2')
         self.assertAlmostEqual(-pi / 2, angles[2], places=2, msg='got a wrong value for angle 3')
@@ -48,7 +47,6 @@ class TestArmController(TestCase):
         z = a2 + d6 * sin(phi)
 
         angles = controller.run(x, y, z, phi)
-        print(angles)
         self.assertAlmostEqual(pi / 2, angles[0], places=2, msg='got a wrong value for angle 1')
         self.assertAlmostEqual(pi / 2, angles[1], places=2, msg='got a wrong value for angle 2')
         self.assertAlmostEqual(-pi / 2, angles[2], places=2, msg='got a wrong value for angle 3')
@@ -76,7 +74,6 @@ class TestArmController(TestCase):
         print(x, y, z)
 
         angles = controller.run(x, y, z, phi)
-        print(angles)
         self.assertAlmostEqual(pi / 2, angles[0], places=2, msg='got a wrong value for angle 1')
         self.assertAlmostEqual(pi / 2, angles[1], places=2, msg='got a wrong value for angle 2')
         self.assertAlmostEqual(-3*pi / 4, angles[2], places=2, msg='got a wrong value for angle 3')
@@ -105,11 +102,10 @@ class TestArmController(TestCase):
         print(x, y, z)
 
         angles = controller.run(x, y, z, phi)
-        print(angles)
-        # self.assertAlmostEqual(pi / 2, angles[0], places=2, msg='got a wrong value for angle 1')
-        # self.assertAlmostEqual(pi / 2, angles[1], places=2, msg='got a wrong value for angle 2')
-        # self.assertAlmostEqual(-3 * pi / 4, angles[2], places=2, msg='got a wrong value for angle 3')
-        # self.assertAlmostEqual(pi / 4, angles[3], places=2, msg='got a wrong value for angle 4')
+        self.assertAlmostEqual(pi / 2, angles[0], places=2, msg='got a wrong value for angle 1')
+        self.assertAlmostEqual(pi / 2, angles[1], places=2, msg='got a wrong value for angle 2')
+        self.assertAlmostEqual(-3 * pi / 4, angles[2], places=2, msg='got a wrong value for angle 3')
+        self.assertAlmostEqual(-pi / 4, angles[3], places=2, msg='got a wrong value for angle 4')
 
 
 class TestConfig:

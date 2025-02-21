@@ -19,7 +19,7 @@ def clipped_first_order_filter(input, target, max_rate, tau):
 
 class JoystickInterface:
     def __init__(
-        self, config, controller, enable_install = False
+        self, config, controller, enable_install=False, enable_arm=False
     ):
         self.config = config
         self.previous_gait_toggle = 0
@@ -33,6 +33,7 @@ class JoystickInterface:
         self.enable_install = enable_install
         self.previous_height = config.default_z_ref
         self.controller_state = None
+        self.enable_arm = enable_arm
 
     def get_state_command(self):
         self.controller_state = cast(ControllerState, self.controller.get_controller_state())
@@ -50,7 +51,7 @@ class JoystickInterface:
         command.install_event = (install_toggle == 1 and self.previous_install_toggle == 0) and self.enable_install
 
         robot_arm_toggle = self.controller_state.select
-        command.robot_arm_event = (robot_arm_toggle == 1 and self.previous_robot_arm_toggle == 0)
+        command.robot_arm_event = (robot_arm_toggle == 1 and self.previous_robot_arm_toggle == 0) and self.enable_arm
 
         # Update previous values for toggles and state
         self.previous_gait_toggle = gait_toggle
@@ -95,6 +96,12 @@ class JoystickInterface:
 
         height_movement = self.controller_state.lr_trigger
         command.z = command.z - 0.01 * self.config.z_speed * height_movement
+
+        x_vel = self.controller_state.l_thumb_y * self.config.max_x_velocity_arm
+        y_vel = self.controller_state.l_thumb_x * self.config.max_y_velocity_arm
+
+        command.x = command.x + x_vel * config.max_arm_speed
+        command.y = command.y + y_vel * config.max_arm_speed
 
         return command
 

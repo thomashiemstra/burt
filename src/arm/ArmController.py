@@ -16,7 +16,6 @@ class ArmController:
     def run(self, x, y, z, phi):
 
         # First find the position of the wrist
-        # TODO sin cos stuff here
         xc = x
         yc = y - self.config.d6 * cos(phi)
         zc = z - self.config.d6 * sin(phi)

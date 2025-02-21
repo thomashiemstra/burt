@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     quad_robot, robot_arm = setup_robots(config)
     xboxController = XboxController(scale=1, dead_zone=0.2)
-    joystick_interface = JoystickInterface(config, xboxController, enable_install=True)
+    joystick_interface = JoystickInterface(config, xboxController)
     stance_manager = StanceManager()
     state_controller = StateController(arm_controller, config, robot_arm, quad_robot)
 
