@@ -41,12 +41,12 @@ if __name__ == '__main__':
             continue
         last_loop = time.time()
 
+        state_command = joystick_interface.get_state_command()
+        state_controller.run(state, state_command)
+
         if state.stance != previous_stance:
             stance_manager.apply_stance(state.stance, config)
             previous_stance = state.stance
-
-        state_command = joystick_interface.get_state_command()
-        state_controller.run(state, state_command)
 
         if state.behavior_state == BehaviorState.ARM:
             robot_arm_command = joystick_interface.get_robot_arm_command(config)
