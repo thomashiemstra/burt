@@ -136,6 +136,7 @@ class RobotArmRobotController:
             servo = cast(Servo, servo)
             position = servo.angle_to_position(joint_angles[i])
             sts_add_param_result = self.sts_packet_handler.SyncWritePosEx(servo.id, position, speed, 0)
+            # print("setting servo: {} to position {}".format(servo.id, position))
             if not sts_add_param_result:
                 print("[ID:%03d] groupSyncWrite add param failed" % servo.id)
         sts_comm_result = self.sts_packet_handler.groupSyncWrite.txPacket()

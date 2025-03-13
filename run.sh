@@ -1,0 +1,1 @@
+/.venv/bin/python run_robot.py > /home/thomas/burt/out.txt

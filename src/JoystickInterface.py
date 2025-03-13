@@ -2,11 +2,9 @@ import numpy as np
 
 from src.StateCommand import StateCommand
 from src.XboxController import ControllerState
-from src.arm.RobotArmCommand import RobotArmCommand
 from src.quad.QuadCommand import QuadCommand
 from src.quad.State import BehaviorState
 from typing import cast
-
 
 def deadband(value, band_radius):
     return max(value - band_radius, 0) + min(value + band_radius, 0)
@@ -89,21 +87,21 @@ class JoystickInterface:
 
         return command
 
-    def get_robot_arm_command(self, config):
+    def update_arm_state(self, config, robot_arm_state):
         self.controller_state = self._get_controller_state()
 
-        command = RobotArmCommand(config)
-
         height_movement = self.controller_state.lr_trigger
-        command.z = command.z - 0.01 * self.config.z_speed * height_movement
+        new_z = robot_arm_state.z + self.config.max_z_velocity_arm * height_movement
+        robot_arm_state.z = np.clip(new_z, -30, 10)
 
         x_vel = self.controller_state.l_thumb_y * self.config.max_x_velocity_arm
         y_vel = self.controller_state.l_thumb_x * self.config.max_y_velocity_arm
 
-        command.x = command.x + x_vel * config.max_arm_speed
-        command.y = command.y + y_vel * config.max_arm_speed
+        new_x = robot_arm_state.x + x_vel * config.arm_speed
+        new_y = robot_arm_state.y + y_vel * config.arm_speed
 
-        return command
+        robot_arm_state.x = np.clip(new_x, 0, 20)
+        robot_arm_state.y = np.clip(new_y, -10, 10)
 
     def _get_controller_state(self):
         return self.controller_state if self.controller_state is not None else cast(ControllerState, self.controller.get_controller_state())

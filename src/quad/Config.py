@@ -94,9 +94,10 @@ class Configuration:
         self.arm_rest_position = [7, 0, 7, -np.pi/2]
         self.arm_active_position = [self.a2 + self.d6, 0, self.d4, 0]
         self.activate_arm_speed = 500
-        self.activate_arm_time = 4
-        self.max_x_velocity_arm = 0.2
-        self.max_y_velocity_arm = 0.1
+        self.activate_arm_time = 1
+        self.max_x_velocity_arm = 2
+        self.max_y_velocity_arm = 1
+        self.max_z_velocity_arm = 0.1
         self.arm_speed = 0.1
 
     @property

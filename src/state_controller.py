@@ -10,10 +10,11 @@ class StateController:
         self.quad_robot = quad_robot
 
         self.trot_transition_mapping = {BehaviorState.REST: BehaviorState.TROT, BehaviorState.TROT: BehaviorState.REST,
-                                        BehaviorState.INSTALL: BehaviorState.REST}
+                                        BehaviorState.INSTALL: BehaviorState.REST, BehaviorState.ARM: BehaviorState.REST}
         self.activate_transition_mapping = {BehaviorState.DEACTIVATED: BehaviorState.REST,
                                             BehaviorState.REST: BehaviorState.DEACTIVATED,
-                                            BehaviorState.INSTALL: BehaviorState.REST}
+                                            BehaviorState.INSTALL: BehaviorState.REST,
+                                            BehaviorState.ARM: BehaviorState.REST}
         self.install_transition_mapping = {BehaviorState.REST: BehaviorState.INSTALL,
                                            BehaviorState.TROT: BehaviorState.INSTALL,
                                            BehaviorState.INSTALL: BehaviorState.REST}
@@ -25,7 +26,7 @@ class StateController:
         self.install_transition_mapping.update({BehaviorState.DEACTIVATED: BehaviorState.DEACTIVATED})
         self.arm_transition_mapping.update({BehaviorState.DEACTIVATED: BehaviorState.DEACTIVATED})
 
-    def run(self, state, command):
+    def run(self, state, arm_state, command):
         # Update operating state based on command
         if command.activate_event:
             state.behavior_state = self.activate_transition_mapping[state.behavior_state]
@@ -39,13 +40,14 @@ class StateController:
         elif command.robot_arm_event:
             state.behavior_state = self.arm_transition_mapping[state.behavior_state]
             print(state.behavior_state.__str__())
-        self._handle_state_change(command, state)
+        self._handle_state_change(command, state, arm_state)
 
-    def _handle_state_change(self, state_command, state):
-        if state_command.robot_arm_event:
+    def _handle_state_change(self, state_command, state, arm_state):
+        if state_command.robot_arm_event or state_command.trot_event:
             if state.behavior_state == BehaviorState.ARM:
                 arm_angles = self.arm_controller.run_position(self.config.arm_active_position)
                 self.robot_arm.activate_arm_if_not_already(arm_angles)
+                arm_state.reset()
             else:
                 arm_angles = self.arm_controller.run_position(self.config.arm_rest_position)
                 self.robot_arm.deactivate_arm_if_not_already(arm_angles)
