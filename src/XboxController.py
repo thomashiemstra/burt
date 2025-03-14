@@ -4,7 +4,7 @@ import math
 import threading
 from inputs import get_gamepad, UnpluggedError
 
-from src.Util import auto_str, synchronized_with_lock, is_windows
+from Util import auto_str, synchronized_with_lock, is_windows
 
 
 @auto_str
@@ -71,8 +71,12 @@ class XboxController(object):
         self.pad_right = False
 
         if is_windows():
+            self._thumb_offset = 0
+            self._trigger_fix = 1
             self._monitor_thread = threading.Thread(target=self._monitor_controller_windows, args=())
         else:
+            self._thumb_offset = XboxController.MAX_JOY_VAL
+            self._trigger_fix = 4
             self._monitor_thread = threading.Thread(target=self._monitor_controller_linux, args=())
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
@@ -105,13 +109,18 @@ class XboxController(object):
     def check_controller_linux():
         from evdev import ecodes, InputDevice, ff, util
         dev = None
-
+        print("finding devices")
         # Find first EV_FF capable event device (that we have permissions to use).
         for name in util.list_devices():
             dev = InputDevice(name)
+            print(dev)
             if dev.name == 'Xbox Wireless Controller':
                 break
-
+            if "X-Box" in dev.name:
+                break
+            dev = None
+        print(dev)
+        
         if dev is None:
             raise UnpluggedError()
         return dev
@@ -184,20 +193,22 @@ class XboxController(object):
         while True:
             events = self.dev.read_loop()
             for event in events:
-                if event.type not in [1, 3]:
+               
+                if (event.code == 0 and event.value == 0):
                     continue
+
                 match event.code:
                     case 1:
                         self.__left_thumb_y(event.value)
                     case 0:
                         self.__left_thumb_x(event.value)
-                    case 34:
-                        self.__right_thumb_y(event.value)
-                    case 3:
-                        self.__right_thumb_x(event.value)
+                    #case 5:
+                        #self.__right_thumb_y(event.value)
                     case 2:
+                        self.__right_thumb_x(event.value)
+                    case 10:
                         self._left_trigger(event.value)
-                    case 5:
+                    case 9:
                         self._right_trigger(event.value)
                     case 310:
                         self.___left_bumper(event.value)
@@ -262,11 +273,11 @@ class XboxController(object):
 
     @synchronized_with_lock("lock")
     def _left_trigger(self, left_trigger_value):
-        self.lr_trigger = -(left_trigger_value / XboxController.MAX_TRIG_VAL) * self.scale
+        self.lr_trigger = (-(left_trigger_value / XboxController.MAX_TRIG_VAL) * self.scale) / self._trigger_fix
 
     @synchronized_with_lock("lock")
     def _right_trigger(self, right_trigger_value):
-        self.lr_trigger = (right_trigger_value / XboxController.MAX_TRIG_VAL) * self.scale
+        self.lr_trigger = ((right_trigger_value / XboxController.MAX_TRIG_VAL) * self.scale) / self._trigger_fix
 
     @synchronized_with_lock("lock")
     def _pad_left_right(self, value):
@@ -295,14 +306,14 @@ class XboxController(object):
         self.select = True if value == 1 else False
 
     def _handle_x_axis_value(self, value):
-        value = (value / XboxController.MAX_JOY_VAL) * self.scale
+        value = ( (value - self._thumb_offset) / XboxController.MAX_JOY_VAL) * self.scale
 
         if self.upper_dead_zone > value > self.lower_dead_zone:
             value = 0
         return value
 
     def _handle_y_axis_value(self, value):
-        value = (value / XboxController.MAX_JOY_VAL) * self.scale * self.invert_yaxis_val
+        value = ((value - self._thumb_offset) / XboxController.MAX_JOY_VAL) * self.scale * self.invert_yaxis_val
 
         if self.upper_dead_zone > value > self.lower_dead_zone:
             value = 0
