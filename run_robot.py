@@ -45,6 +45,7 @@ if __name__ == '__main__':
 
         state_command = joystick_interface.get_state_command()
         state_controller.run(state, arm_state, state_command)
+        state_controller.handle_state_change(state_command, state, arm_state)
 
         if state.stance != previous_stance:
             stance_manager.apply_stance(state.stance, config)

@@ -40,9 +40,8 @@ class StateController:
         elif command.robot_arm_event:
             state.behavior_state = self.arm_transition_mapping[state.behavior_state]
             print(state.behavior_state.__str__())
-        self._handle_state_change(command, state, arm_state)
 
-    def _handle_state_change(self, state_command, state, arm_state):
+    def handle_state_change(self, state_command, state, arm_state):
         if state_command.robot_arm_event or state_command.trot_event:
             if state.behavior_state == BehaviorState.ARM:
                 arm_angles = self.arm_controller.run_position(self.config.arm_active_position)
