@@ -12,16 +12,15 @@ class State:
         self.pitch = 0.0
         self.roll = 0.0
         self.activation = 0
-        self.behavior_state = BehaviorState.REST
 
         self.ticks = 0
         self.foot_locations = np.zeros((3, 4))
         self.rotated_foot_locations = np.zeros((3, 4))
         self.joint_angles = np.zeros((3, 4))
 
-        self.behavior_state = BehaviorState.REST
+        self.behavior_state = BehaviorState.DEACTIVATED
         self.quat_orientation = np.array([1, 0, 0, 0])
-        self.stance = Stance.SLOW
+        self.stance = Stance.MEDIUM
 
 
 class BehaviorState(Enum):
