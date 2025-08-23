@@ -4,7 +4,7 @@ import math
 import threading
 from inputs import get_gamepad, UnpluggedError
 
-from Util import auto_str, synchronized_with_lock, is_windows
+from src.Util import auto_str, synchronized_with_lock, is_windows
 
 
 @auto_str

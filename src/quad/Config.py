@@ -1,11 +1,10 @@
 import numpy as np
 
-from src.Util import auto_str_newline
-
 
 # @auto_str_newline
 class Configuration:
-    def __init__(self):
+    def __init__(self, servo_offsets):
+
         #################### CONNECTION ####################
         self.windows_com_port = 'COM6'
         self.linux_com_port = '/dev/ttyACM0'
@@ -52,7 +51,7 @@ class Configuration:
         )
 
         ######################## GEOMETRY ######################
-        self.offsets = [-17, 54, -21, 4, -81, -4, 8, -31, -42, -14, 48, 8]
+        self.offsets = servo_offsets
         self.LEG_FB = 0.09  # front-back distance from center line to leg axis
         self.LEG_LR = 0.06 # left-right distance from center line to leg plane
         self.LEG_L2 = 0.074

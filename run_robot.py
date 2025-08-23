@@ -12,28 +12,32 @@ from src.quad.QuadController import QuadController
 from src.quad.Kinematics import four_legs_inverse_kinematics
 from src.quad.State import State, BehaviorState
 from src.state_controller import StateController
+from numpy import loadtxt
+from src.Util import is_windows
 
 if __name__ == '__main__':
-    config = Configuration()
+    servo_offsets = loadtxt("src/quad/offsets.txt", comments="#", delimiter=",", unpack=False, dtype=int)
+
+    config = Configuration(servo_offsets)
 
     quad_controller = QuadController(config, four_legs_inverse_kinematics)
     arm_controller = ArmController(config)
 
     quad_robot, robot_arm = setup_robots(config)
     xboxController = XboxController(scale=1, dead_zone=0.2)
-    joystick_interface = JoystickInterface(config, xboxController, enable_arm=True)
+    joystick_interface = JoystickInterface(config, xboxController, enable_arm=True, enable_install=is_windows())
     stance_manager = StanceManager()
     state_controller = StateController(arm_controller, config, robot_arm, quad_robot)
 
-    root = None
     # root = setup_config_editor(config)
-    # servos = robot.get_servo_list()
-    # root = setup_servo_editor(servos)
+    servos = quad_robot.get_servo_list()
+    root = setup_servo_editor(servos)
 
     state = State(config)
     arm_state = RobotArmState(config)
     previous_stance = state.stance
     stance_manager.apply_stance(state.stance, config)
+    quad_robot.disable_motors()
 
     last_loop = time.time()
 
@@ -60,4 +64,5 @@ if __name__ == '__main__':
             quad_controller.run(state, quad_command)
             quad_robot.set_actuator_positions(state)
 
-        # root.update()
+        if root is not None:
+            root.update()
