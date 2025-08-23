@@ -30,8 +30,8 @@ if __name__ == '__main__':
     state_controller = StateController(arm_controller, config, robot_arm, quad_robot)
 
     # root = setup_config_editor(config)
-    servos = quad_robot.get_servo_list()
-    root = setup_servo_editor(servos)
+    # servos = quad_robot.get_servo_list()
+    # root = setup_servo_editor(servos)
 
     state = State(config)
     arm_state = RobotArmState(config)
@@ -64,5 +64,5 @@ if __name__ == '__main__':
             quad_controller.run(state, quad_command)
             quad_robot.set_actuator_positions(state)
 
-        if root is not None:
-            root.update()
+        # if root is not None:
+        #     root.update()
