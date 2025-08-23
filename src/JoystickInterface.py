@@ -42,7 +42,7 @@ class JoystickInterface:
         gait_toggle = self.controller_state.y
         command.trot_event = (gait_toggle == 1 and self.previous_gait_toggle == 0)
 
-        activate_toggle = self.controller_state.start
+        activate_toggle = self.controller_state.a
         command.activate_event = (activate_toggle == 1 and self.previous_activate_toggle == 0)
 
         install_toggle = self.controller_state.b
