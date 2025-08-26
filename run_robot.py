@@ -14,9 +14,14 @@ from src.quad.State import State, BehaviorState
 from src.state_controller import StateController
 from numpy import loadtxt
 from src.Util import is_windows
+import os
+
 
 if __name__ == '__main__':
-    servo_offsets = loadtxt("src/quad/offsets.txt", comments="#", delimiter=",", unpack=False, dtype=int)
+    script_dir = os.path.dirname(__file__)
+    rel_path = "src/quad/offsets.txt"
+    abs_file_path = os.path.join(script_dir, rel_path)
+    servo_offsets = loadtxt(abs_file_path, comments="#", delimiter=",", unpack=False, dtype=int)
 
     config = Configuration(servo_offsets)
 
