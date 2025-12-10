@@ -1,8 +1,5 @@
-"# burt" 
-https://github.com/doctorsrn/xacro2urdf
+## Burt the quadruped robot
 
-crontab -e
-@reboot /home/thomas/Documents/burt/.venv/bin/python /home/thomas/Documents/burt/run_robot.py >> /home/thomas/logs.txt 2>&1
+This is my quadruped robot code based off:
 
-ssh thomas@192.168.178.146
-dinges
+https://github.com/stanfordroboticsclub/StanfordQuadruped
