@@ -6,5 +6,5 @@ https://github.com/stanfordroboticsclub/StanfordQuadruped
 
 
 <p float="left">
-  <img src="media/burt.jpg" width="335" />
+  <img src="media/burt.jpg" width="500" />
 </p>
