@@ -71,10 +71,12 @@ class JoystickInterface:
         pad_right = self.controller_state.pad_right
         if pad_right and self.previous_pad_right == 0:
             state.stance = state.stance.next()
+            print("Switching stance to:", state.stance)
 
         pad_left = self.controller_state.pad_left
         if pad_left and self.previous_pad_left == 0:
             state.stance = state.stance.previous()
+            print("Switching stance to:", state.stance)
 
         self.previous_pad_right = pad_right
         self.previous_pad_left = pad_left

@@ -1,65 +1,445 @@
-<robot name="pi_robot">
+<?xml version="1.0"?>
+<robot name="burt">
 
-	<!-- * * * Link Definitions * * * -->
+    <!--
+        12-DOF quadruped matching src/quad/Kinematics.py + Config.py.
 
- 	<link name="base_link">
- 	    <inertial>
-          <origin rpy="0 0 0" xyz="0 0 0"/>
-          <mass value=".0"/>
-          <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+        Each leg has 3 joints, in the same order the IK returns them
+        (abduction_angle, hip_angle, knee_angle):
+
+          <leg>_abduction : hip roll, rotates the whole leg about the body x-axis
+                            (the abduction_angle solved in the y-z plane).
+          <leg>_hip       : upper-leg pitch about y, swings the leg fore/aft
+                            (hip_angle from theta = arctan2(-x, R_hip_foot_yz)).
+          <leg>_knee      : lower-leg pitch about y (knee_angle).
+
+        Link lengths / offsets are taken from Config.py so the tree lines up
+        with the kinematics; tweak the exact numbers/visuals later.
+
+        Frame: x forward, y left, z up. Legs hang in -z.
+
+        Legs follow the Config.py leg_index order:
+          0 = fr (front-right), 1 = fl (front-left),
+          2 = br (back-right),  3 = bl (back-left).
+        Right legs use ABDUCTION_OFFSET = -0.03, left legs use +0.03.
+    -->
+
+    <!-- * * * Materials * * * -->
+    <material name="body_cyan">
+        <color rgba="0 0.9 0.9 1.0"/>
+    </material>
+    <material name="link_black">
+        <color rgba="0.2 0.2 0.2 1.0"/>
+    </material>
+    <material name="foot_red">
+        <color rgba="0.8 0.1 0.1 1.0"/>
+    </material>
+
+    <!-- * * * Base * * * -->
+    <!-- Body spans roughly 2*LEG_FB x 2*LEG_LR. -->
+    <link name="base_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="1.0"/>
+            <inertia ixx="2e-3" ixy="0" ixz="0" iyy="5e-3" iyz="0" izz="6e-3"/>
         </inertial>
-		<visual>
-		    <origin xyz="0 0 0.0425" rpy="0 0 0"/>
-			<geometry>
-				<box size="0.5 0.2 0.1"/>
-			</geometry>
-			<material name="Cyan1">
-	       		<color rgba="0 0.9 0.9 1.0"/>
-	     	</material>
-		</visual>
-	</link>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.18 0.12 0.05"/>
+            </geometry>
+            <material name="body_cyan"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.18 0.12 0.05"/>
+            </geometry>
+        </collision>
+    </link>
 
- 	<link name="arm_1">
-		<visual>
-		    <origin xyz="0 0.2 0" rpy="0 0 0"/>
-			<geometry>
-				<box size="0.1 0.5 0.1"/>
-			</geometry>
-			<material name="Black1">
-	       		<color rgba="0.2 0.2 0.2 1.0"/>
-	     	</material>
-		</visual>
-	</link>
+    <!-- ============================================================ -->
+    <!-- Leg 0: front-right (fr)   origin (+0.09, -0.06)  abd -0.03   -->
+    <!-- ============================================================ -->
 
-  <joint name="base_to_arm_1" type="revolute">
-    <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
-    <parent link="base_link"/>
-    <child link="arm_1"/>
-    <origin rpy="0 0 0" xyz="-0.2 0.0 0.15"/>
-    <axis xyz="0 0 1"/>
-  </joint>
+    <link name="fr_hip_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 -0.015 0"/>
+            <mass value="0.1"/>
+            <inertia ixx="5e-5" ixy="0" ixz="0" iyy="5e-5" iyz="0" izz="5e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 -0.015 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.03 0.04"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="fr_abduction" type="revolute">
+        <parent link="base_link"/>
+        <child link="fr_hip_link"/>
+        <origin rpy="0 0 0" xyz="0.09 -0.06 0"/>
+        <axis xyz="1 0 0"/>
+        <limit effort="1000.0" lower="-1.5708" upper="1.5708" velocity="10"/>
+    </joint>
 
-   	<link name="arm_1_1">
-		<visual>
-		    <origin xyz="0 0.2 0" rpy="0 0 0"/>
-			<geometry>
-				<box size="0.1 0.5 0.1"/>
-			</geometry>
-			<material name="Black1">
-	       		<color rgba="0.2 0.2 0.2 1.0"/>
-	     	</material>
-		</visual>
-	</link>
-
-      <joint name="arm_1_to_arm_1_1" type="continuous">
+    <link name="fr_upper_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 -0.05"/>
+            <mass value="0.1"/>
+            <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="2e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.03 0.03 0.10"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="fr_hip" type="revolute">
+        <parent link="fr_hip_link"/>
+        <child link="fr_upper_link"/>
+        <origin rpy="0 0 0" xyz="0 -0.03 0"/>
+        <axis xyz="0 1 0"/>
         <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
-        <parent link="arm_1"/>
-        <child link="arm_1_1"/>
-        <origin rpy="0 0 0" xyz="0 0.4 -0.1"/>
-        <axis xyz="0 0 1"/>
-      </joint>
+    </joint>
 
+    <link name="fr_lower_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 -0.037"/>
+            <mass value="0.05"/>
+            <inertia ixx="5e-5" ixy="0" ixz="0" iyy="5e-5" iyz="0" izz="1e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.037" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.025 0.025 0.074"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="fr_knee" type="revolute">
+        <parent link="fr_upper_link"/>
+        <child link="fr_lower_link"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.10"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
+    </joint>
 
+    <link name="fr_foot">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="0.026"/>
+            </geometry>
+            <material name="foot_red"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="0.026"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="fr_foot_joint" type="fixed">
+        <parent link="fr_lower_link"/>
+        <child link="fr_foot"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.074"/>
+    </joint>
 
+    <!-- ============================================================ -->
+    <!-- Leg 1: front-left (fl)    origin (+0.09, +0.06)  abd +0.03   -->
+    <!-- ============================================================ -->
+
+    <link name="fl_hip_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0.015 0"/>
+            <mass value="0.1"/>
+            <inertia ixx="5e-5" ixy="0" ixz="0" iyy="5e-5" iyz="0" izz="5e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0.015 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.03 0.04"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="fl_abduction" type="revolute">
+        <parent link="base_link"/>
+        <child link="fl_hip_link"/>
+        <origin rpy="0 0 0" xyz="0.09 0.06 0"/>
+        <axis xyz="1 0 0"/>
+        <limit effort="1000.0" lower="-1.5708" upper="1.5708" velocity="10"/>
+    </joint>
+
+    <link name="fl_upper_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 -0.05"/>
+            <mass value="0.1"/>
+            <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="2e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.03 0.03 0.10"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="fl_hip" type="revolute">
+        <parent link="fl_hip_link"/>
+        <child link="fl_upper_link"/>
+        <origin rpy="0 0 0" xyz="0 0.03 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
+    </joint>
+
+    <link name="fl_lower_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 -0.037"/>
+            <mass value="0.05"/>
+            <inertia ixx="5e-5" ixy="0" ixz="0" iyy="5e-5" iyz="0" izz="1e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.037" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.025 0.025 0.074"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="fl_knee" type="revolute">
+        <parent link="fl_upper_link"/>
+        <child link="fl_lower_link"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.10"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
+    </joint>
+
+    <link name="fl_foot">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="0.026"/>
+            </geometry>
+            <material name="foot_red"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="0.026"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="fl_foot_joint" type="fixed">
+        <parent link="fl_lower_link"/>
+        <child link="fl_foot"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.074"/>
+    </joint>
+
+    <!-- ============================================================ -->
+    <!-- Leg 2: back-right (br)    origin (-0.09, -0.06)  abd -0.03   -->
+    <!-- ============================================================ -->
+
+    <link name="br_hip_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 -0.015 0"/>
+            <mass value="0.1"/>
+            <inertia ixx="5e-5" ixy="0" ixz="0" iyy="5e-5" iyz="0" izz="5e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 -0.015 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.03 0.04"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="br_abduction" type="revolute">
+        <parent link="base_link"/>
+        <child link="br_hip_link"/>
+        <origin rpy="0 0 0" xyz="-0.09 -0.06 0"/>
+        <axis xyz="1 0 0"/>
+        <limit effort="1000.0" lower="-1.5708" upper="1.5708" velocity="10"/>
+    </joint>
+
+    <link name="br_upper_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 -0.05"/>
+            <mass value="0.1"/>
+            <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="2e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.03 0.03 0.10"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="br_hip" type="revolute">
+        <parent link="br_hip_link"/>
+        <child link="br_upper_link"/>
+        <origin rpy="0 0 0" xyz="0 -0.03 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
+    </joint>
+
+    <link name="br_lower_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 -0.037"/>
+            <mass value="0.05"/>
+            <inertia ixx="5e-5" ixy="0" ixz="0" iyy="5e-5" iyz="0" izz="1e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.037" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.025 0.025 0.074"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="br_knee" type="revolute">
+        <parent link="br_upper_link"/>
+        <child link="br_lower_link"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.10"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
+    </joint>
+
+    <link name="br_foot">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="0.026"/>
+            </geometry>
+            <material name="foot_red"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="0.026"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="br_foot_joint" type="fixed">
+        <parent link="br_lower_link"/>
+        <child link="br_foot"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.074"/>
+    </joint>
+
+    <!-- ============================================================ -->
+    <!-- Leg 3: back-left (bl)     origin (-0.09, +0.06)  abd +0.03   -->
+    <!-- ============================================================ -->
+
+    <link name="bl_hip_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0.015 0"/>
+            <mass value="0.1"/>
+            <inertia ixx="5e-5" ixy="0" ixz="0" iyy="5e-5" iyz="0" izz="5e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0.015 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.04 0.03 0.04"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="bl_abduction" type="revolute">
+        <parent link="base_link"/>
+        <child link="bl_hip_link"/>
+        <origin rpy="0 0 0" xyz="-0.09 0.06 0"/>
+        <axis xyz="1 0 0"/>
+        <limit effort="1000.0" lower="-1.5708" upper="1.5708" velocity="10"/>
+    </joint>
+
+    <link name="bl_upper_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 -0.05"/>
+            <mass value="0.1"/>
+            <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="2e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.03 0.03 0.10"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="bl_hip" type="revolute">
+        <parent link="bl_hip_link"/>
+        <child link="bl_upper_link"/>
+        <origin rpy="0 0 0" xyz="0 0.03 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
+    </joint>
+
+    <link name="bl_lower_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 -0.037"/>
+            <mass value="0.05"/>
+            <inertia ixx="5e-5" ixy="0" ixz="0" iyy="5e-5" iyz="0" izz="1e-5"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.037" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.025 0.025 0.074"/>
+            </geometry>
+            <material name="link_black"/>
+        </visual>
+    </link>
+    <joint name="bl_knee" type="revolute">
+        <parent link="bl_upper_link"/>
+        <child link="bl_lower_link"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.10"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000.0" lower="-3.14159" upper="3.14159" velocity="10"/>
+    </joint>
+
+    <link name="bl_foot">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="0.026"/>
+            </geometry>
+            <material name="foot_red"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius="0.026"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="bl_foot_joint" type="fixed">
+        <parent link="bl_lower_link"/>
+        <child link="bl_foot"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.074"/>
+    </joint>
 
 </robot>

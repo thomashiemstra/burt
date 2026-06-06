@@ -12,7 +12,7 @@ class Configuration:
 
         #################### COMMANDS ####################
         self.max_x_velocity = 0.2
-        self.max_y_velocity = 0.1
+        self.max_y_velocity = 0.5
         self.max_yaw_rate = 0.5
         self.max_pitch = 30.0 * np.pi / 180.0
         

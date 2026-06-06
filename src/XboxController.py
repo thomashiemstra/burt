@@ -95,7 +95,7 @@ class XboxController(object):
             if res is not None:
                 break
             sleep(1)
-        return res
+        return
 
     @staticmethod
     def check_controller_windows():
