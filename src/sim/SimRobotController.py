@@ -129,16 +129,16 @@ class SimRobotController:
             return
         targets = self._target_angles(state.joint_angles)
         force = self.max_force if self.motors_enabled else 0.0
-        for leg_index in range(4):
-            for axis_index in range(3):
-                p.setJointMotorControl2(
-                    self.robot,
-                    int(self.joint_index[axis_index, leg_index]),
-                    controlMode=p.POSITION_CONTROL,
-                    targetPosition=targets[axis_index, leg_index],
-                    force=force,
-                    physicsClientId=self.client,
-                )
+        joint_indices = self.joint_index.reshape(-1).astype(int).tolist()
+        target_positions = targets.reshape(-1).tolist()
+        p.setJointMotorControlArray(
+            self.robot,
+            joint_indices,
+            controlMode=p.POSITION_CONTROL,
+            targetPositions=target_positions,
+            forces=[force] * len(joint_indices),
+            physicsClientId=self.client,
+        )
 
     def enable_motors(self):
         self.motors_enabled = True
