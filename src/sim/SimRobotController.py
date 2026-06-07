@@ -82,6 +82,8 @@ class SimRobotController:
             for axis_index, axis in enumerate(AXIS_NAMES):
                 self.joint_index[axis_index, leg_index] = name_to_joint[f"{leg}_{axis}"]
 
+        self._joint_indices = self.joint_index.reshape(-1).astype(int).tolist()
+
         # Per-joint sign / offset so axis directions can be recalibrated without
         # touching the URDF (defaults verified to reproduce the IK exactly).
         self.directions = np.ones((3, 4))
@@ -129,14 +131,14 @@ class SimRobotController:
             return
         targets = self._target_angles(state.joint_angles)
         force = self.max_force if self.motors_enabled else 0.0
-        joint_indices = self.joint_index.reshape(-1).astype(int).tolist()
+
         target_positions = targets.reshape(-1).tolist()
         p.setJointMotorControlArray(
             self.robot,
-            joint_indices,
+            self._joint_indices,
             controlMode=p.POSITION_CONTROL,
             targetPositions=target_positions,
-            forces=[force] * len(joint_indices),
+            forces=[force] * len(self._joint_indices),
             physicsClientId=self.client,
         )
 
