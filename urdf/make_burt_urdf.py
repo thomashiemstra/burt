@@ -57,12 +57,18 @@ FOOT_RADIUS_MM = 25.0                              # printed foot radius, withou
 MIRROR_Y = 45.127          # left/right symmetry plane
 REAR_SHIFT_X = -180.0      # rear legs are the front legs moved back by this
 
-# Placeholders until the servo recordings are in.
-# hip_pitch lower limit: still not measured, but set from what the gait commands rather than
-# guessed. Straight down is -pi/2; across all three stances at full stick the gait asks for
-# down to -2.25 rad (SLOW -1.62, MEDIUM -1.73, FAST -2.25), so the limit is -2.36 (= -3*pi/4,
-# upper leg 45 deg forward of vertical). Replace with the real mechanical stop once measured.
-LIMITS = dict(hip_roll=(-0.6, 0.6), hip_pitch=(-2.36, 1.3), knee=(-1.3, 1.3))
+# Joint limits (rad, URDF sign convention, zero = the Fusion pose).
+# hip_pitch and knee are the mechanical stops in the Fusion design, found by rotating the
+# parts about the joint axis and checking for interference (first contact, rounded inward):
+#   hip_pitch  -81 deg: upper leg meets the floor of the servo holder, 9 deg before it hangs
+#                       straight down (-90 deg);  +81 deg: upper leg meets the servo clamp.
+#   knee       -67 / +64 deg: the knee rod of the parallelogram comes down onto the upper leg.
+# Not expressible as a URDF limit, and never reached by the gait: the knee crank meets the
+# servo clamp when hip_pitch + knee (= the knee servo angle) goes above +28 deg.
+# hip_roll is still a placeholder: the hip link itself clears the body over +-90 deg, so the
+# real limit is the leg touching the body, which depends on the leg pose, and the cables.
+LIMITS = dict(hip_roll=(-0.6, 0.6), hip_pitch=(-1.41, 1.41), knee=(-1.17, 1.12))
+# Placeholders until the servo recordings are in
 EFFORT, VELOCITY = 1.9, 4.7     # N*m, rad/s
 FOOT_FRICTION = 1.0
 # ------------------------------------------------------------- END CONFIG
@@ -158,7 +164,8 @@ def build():
   Masses: total {(ROBOT_NO_TOP_NO_BATT_G + BATTERY_G + TOP_G)/1000:.3f} kg. Servos {SERVO_G:.0f} g each, battery {BATTERY_G:.0f} g, plate+Pi {TOP_G:.0f} g.
   The remaining {PLASTIC_G:.0f} g (printed parts plus screws, bearings, inserts, brackets) is spread over the
   printed parts by volume ({DENSITY:.2f} g/cm3 effective).
-  PLACEHOLDERS to replace with measurements: joint limits, effort, velocity, damping, foot radius with tyre.
+  Joint limits: hip_pitch and knee are the mechanical stops of the Fusion design (interference check).
+  PLACEHOLDERS to replace with measurements: hip_roll limit, effort, velocity, damping, foot radius with tyre.
 -->
 ''')
     out.append('<robot name="burt">\n')

@@ -11,7 +11,8 @@
   Masses: total 2.266 kg. Servos 62 g each, battery 336 g, plate+Pi 230 g.
   The remaining 956 g (printed parts plus screws, bearings, inserts, brackets) is spread over the
   printed parts by volume (1.73 g/cm3 effective).
-  PLACEHOLDERS to replace with measurements: joint limits, effort, velocity, damping, foot radius with tyre.
+  Joint limits: hip_pitch and knee are the mechanical stops of the Fusion design (interference check).
+  PLACEHOLDERS to replace with measurements: hip_roll limit, effort, velocity, damping, foot radius with tyre.
 -->
 <robot name="burt">
   <material name="body"><color rgba="0.25 0.25 0.28 1"/></material>
@@ -88,7 +89,7 @@
     <child link="fl_upper_leg"/>
     <origin xyz="0 0.0301 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.36" upper="1.3" effort="1.9" velocity="4.7"/>
+    <limit lower="-1.41" upper="1.41" effort="1.9" velocity="4.7"/>
     <dynamics damping="0.02" friction="0.0"/>
   </joint>
   <link name="fl_lower_leg">
@@ -112,7 +113,7 @@
     <child link="fl_lower_leg"/>
     <origin xyz="-0.1 0.006974 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.3" upper="1.3" effort="1.9" velocity="4.7"/>
+    <limit lower="-1.17" upper="1.12" effort="1.9" velocity="4.7"/>
     <dynamics damping="0.02" friction="0.0"/>
   </joint>
   <link name="fl_foot">
@@ -182,7 +183,7 @@
     <child link="fr_upper_leg"/>
     <origin xyz="0 -0.0301 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.36" upper="1.3" effort="1.9" velocity="4.7"/>
+    <limit lower="-1.41" upper="1.41" effort="1.9" velocity="4.7"/>
     <dynamics damping="0.02" friction="0.0"/>
   </joint>
   <link name="fr_lower_leg">
@@ -206,7 +207,7 @@
     <child link="fr_lower_leg"/>
     <origin xyz="-0.1 -0.006974 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.3" upper="1.3" effort="1.9" velocity="4.7"/>
+    <limit lower="-1.17" upper="1.12" effort="1.9" velocity="4.7"/>
     <dynamics damping="0.02" friction="0.0"/>
   </joint>
   <link name="fr_foot">
@@ -276,7 +277,7 @@
     <child link="rl_upper_leg"/>
     <origin xyz="0 0.0301 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.36" upper="1.3" effort="1.9" velocity="4.7"/>
+    <limit lower="-1.41" upper="1.41" effort="1.9" velocity="4.7"/>
     <dynamics damping="0.02" friction="0.0"/>
   </joint>
   <link name="rl_lower_leg">
@@ -300,7 +301,7 @@
     <child link="rl_lower_leg"/>
     <origin xyz="-0.1 0.006974 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.3" upper="1.3" effort="1.9" velocity="4.7"/>
+    <limit lower="-1.17" upper="1.12" effort="1.9" velocity="4.7"/>
     <dynamics damping="0.02" friction="0.0"/>
   </joint>
   <link name="rl_foot">
@@ -370,7 +371,7 @@
     <child link="rr_upper_leg"/>
     <origin xyz="0 -0.0301 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.36" upper="1.3" effort="1.9" velocity="4.7"/>
+    <limit lower="-1.41" upper="1.41" effort="1.9" velocity="4.7"/>
     <dynamics damping="0.02" friction="0.0"/>
   </joint>
   <link name="rr_lower_leg">
@@ -394,7 +395,7 @@
     <child link="rr_lower_leg"/>
     <origin xyz="-0.1 -0.006974 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-1.3" upper="1.3" effort="1.9" velocity="4.7"/>
+    <limit lower="-1.17" upper="1.12" effort="1.9" velocity="4.7"/>
     <dynamics damping="0.02" friction="0.0"/>
   </joint>
   <link name="rr_foot">
