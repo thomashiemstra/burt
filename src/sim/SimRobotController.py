@@ -8,9 +8,11 @@ from src.quad.State import BehaviorState
 
 # Leg order matches Config.LEG_ORIGINS / State.joint_angles columns:
 #   0 = front-right, 1 = front-left, 2 = back-right, 3 = back-left
-LEG_NAMES = ["fr", "fl", "br", "bl"]
-# Axis (row) order in state.joint_angles: 0 = abduction, 1 = hip, 2 = knee
-AXIS_NAMES = ["abduction", "hip", "knee"]
+# The URDF calls the back legs "rear": rr / rl.
+LEG_NAMES = ["fr", "fl", "rr", "rl"]
+# Axis (row) order in state.joint_angles: 0 = abduction, 1 = hip, 2 = knee.
+# These are the matching URDF joint suffixes (<leg>_hip_roll, ...).
+AXIS_NAMES = ["hip_roll", "hip_pitch", "knee"]
 
 
 class SimRobotController:
@@ -23,17 +25,30 @@ class SimRobotController:
     the simulator.
 
     The IK in src/quad/Kinematics.py returns, per leg, [abduction, hip, knee]
-    where every angle is measured from the (tilted) downward axis. A URDF knee
-    joint, however, rotates *relative to the thigh*, so the knee command is
-    knee_angle - hip_angle. abduction and hip map straight through. See the
-    foot-position calibration that produced 0mm error against the IK targets.
+    where hip and knee are both measured from the (tilted) downward axis. The
+    URDF (urdf/burt.urdf, generated from the Fusion model) differs in two ways:
+
+      * its knee joint rotates *relative to the upper leg*, so the knee command
+        is knee_angle - hip_angle (the real robot gets the same effect from the
+        parallelogram linkage);
+      * its zero pose is the Fusion pose: upper leg horizontal pointing
+        backward, lower leg straight down. That is the IK pose hip = +90 deg,
+        knee = 0, hence the -pi/2 / +pi/2 offsets below.
+
+    So:  hip_roll  = abduction
+         hip_pitch = hip - pi/2
+         knee      = knee - hip + pi/2
+    Checked with forward kinematics: with a Config whose leg dimensions equal
+    the URDF's, the feet land on the IK targets with 0 mm error.
+
+    Motor torque and speed limits default to the effort / velocity values in
+    the URDF; pass max_force / max_velocity to override them.
     """
 
     def __init__(self, config, urdf_path, gui=True, spawn_height=0.16,
-                 max_force=12.0, plane_friction=1.0, foot_friction=1.5,
-                 gui_width=1920, gui_height=1080):
+                 max_force=None, max_velocity=None, plane_friction=1.0,
+                 foot_friction=1.5, gui_width=1920, gui_height=1080):
         self.config = config
-        self.max_force = max_force
         self.spawn_height = spawn_height
         self.motors_enabled = False
 
@@ -78,16 +93,30 @@ class SimRobotController:
             if child_link.endswith("_foot"):
                 p.changeDynamics(self.robot, j, lateralFriction=foot_friction,
                                  physicsClientId=self.client)
+        # Per-joint torque [N*m] and speed [rad/s] limits, from the URDF <limit>
+        # tags unless overridden. PyBullet enforces the URDF position limits
+        # itself; they are kept here only to warn when a command exceeds them.
+        self.max_force = np.empty((3, 4))
+        self.max_velocity = np.empty((3, 4))
+        self.lower_limit = np.empty((3, 4))
+        self.upper_limit = np.empty((3, 4))
+        self._limit_warned = np.zeros((3, 4), dtype=bool)
         for leg_index, leg in enumerate(LEG_NAMES):
             for axis_index, axis in enumerate(AXIS_NAMES):
-                self.joint_index[axis_index, leg_index] = name_to_joint[f"{leg}_{axis}"]
+                joint = name_to_joint[f"{leg}_{axis}"]
+                info = p.getJointInfo(self.robot, joint, physicsClientId=self.client)
+                self.joint_index[axis_index, leg_index] = joint
+                self.lower_limit[axis_index, leg_index] = info[8]
+                self.upper_limit[axis_index, leg_index] = info[9]
+                self.max_force[axis_index, leg_index] = info[10] if max_force is None else max_force
+                self.max_velocity[axis_index, leg_index] = info[11] if max_velocity is None else max_velocity
 
-        self._joint_indices = self.joint_index.reshape(-1).astype(int).tolist()
-
-        # Per-joint sign / offset so axis directions can be recalibrated without
-        # touching the URDF (defaults verified to reproduce the IK exactly).
+        # Per-joint sign / offset between the IK angles and the URDF joints
+        # (see the class docstring for where the +-pi/2 comes from).
         self.directions = np.ones((3, 4))
         self.offsets = np.zeros((3, 4))
+        self.offsets[1, :] = -np.pi / 2
+        self.offsets[2, :] = np.pi / 2
 
         # Start with the legs posed at the REST stance so the (initially limp)
         # robot looks right rather than spawning splayed out.
@@ -130,17 +159,30 @@ class SimRobotController:
         if state.behavior_state == BehaviorState.DEACTIVATED:
             return
         targets = self._target_angles(state.joint_angles)
-        force = self.max_force if self.motors_enabled else 0.0
+        self._warn_if_beyond_limits(targets)
+        for leg_index in range(4):
+            for axis_index in range(3):
+                force = self.max_force[axis_index, leg_index] if self.motors_enabled else 0.0
+                p.setJointMotorControl2(
+                    self.robot,
+                    int(self.joint_index[axis_index, leg_index]),
+                    controlMode=p.POSITION_CONTROL,
+                    targetPosition=targets[axis_index, leg_index],
+                    force=force,
+                    maxVelocity=self.max_velocity[axis_index, leg_index],
+                    physicsClientId=self.client,
+                )
 
-        target_positions = targets.reshape(-1).tolist()
-        p.setJointMotorControlArray(
-            self.robot,
-            self._joint_indices,
-            controlMode=p.POSITION_CONTROL,
-            targetPositions=target_positions,
-            forces=[force] * len(self._joint_indices),
-            physicsClientId=self.client,
-        )
+    def _warn_if_beyond_limits(self, targets):
+        """Say so (once per joint) when the gait asks for an angle the URDF
+        limits do not allow, since the joint will silently stop at the limit."""
+        beyond = ((targets < self.lower_limit) | (targets > self.upper_limit)) & ~self._limit_warned
+        for axis_index, leg_index in zip(*np.nonzero(beyond)):
+            print("sim: {}_{} commanded to {:.2f} rad, outside its URDF limits [{:.2f}, {:.2f}]; "
+                  "it will stop at the limit".format(
+                      LEG_NAMES[leg_index], AXIS_NAMES[axis_index], targets[axis_index, leg_index],
+                      self.lower_limit[axis_index, leg_index], self.upper_limit[axis_index, leg_index]))
+        self._limit_warned |= beyond
 
     def enable_motors(self):
         self.motors_enabled = True
